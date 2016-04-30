@@ -14,7 +14,7 @@ object/TestClass.o: object
 	g++ -c --std=c++14 TestClass.cpp -o object/TestClass.o
 
 all: object/main.o object/TestClass.o bin
-	g++ object/main.o object/TestClass.o -o bin/main.exe
+	g++ object/main.o object/TestClass.o -o bin/main
 
 clean:
 	rm -rf object bin

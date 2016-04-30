@@ -9,7 +9,7 @@ TestClass dostuff(int i) {
 int main() {
 	TestClass t(10);
 	TestClass u = dostuff(20);
-	u = dostuff(40);
+	u = dostuff(45);
 	std::cout << "T: " << t << std::endl;
 	std::cout << "U: " << u << std::endl;
 	return 0;
