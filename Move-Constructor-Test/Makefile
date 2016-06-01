@@ -2,7 +2,7 @@ CXX=g++
 CXXFLAGS=--std=c++14
 
 DEFAULT:
-	echo "Use make all to compile, or make clean to remove all compiled files."
+	@echo "Use make all to compile, or make clean to remove all compiled files."
 
 object:
 	mkdir object
