@@ -5,9 +5,9 @@
 
 const char* notepad_szClassName = "notepad_window_class";
 
-char szOpenFilename[MAX_PATH] = "";
+char g_szOpenFilename[MAX_PATH] = "";
 
-BOOL LoadOpenFileName(HWND hwnd) {
+BOOL LoadOpenFileName(HWND hwnd, LPSTR pszFilename) {
 	OPENFILENAME ofn;
 	char szFilename[MAX_PATH] = "";
 	ZeroMemory(&ofn, sizeof(ofn));
@@ -20,11 +20,50 @@ BOOL LoadOpenFileName(HWND hwnd) {
 	ofn.lpstrDefExt = "txt";
 	
 	if (GetOpenFileName(&ofn)) {
-		LPSTR ptr = lstrcpy(szOpenFilename, szFilename);
+		LPSTR ptr = lstrcpy(pszFilename, szFilename);
 		if (ptr == NULL) return FALSE;
 		else return TRUE;
 	}
 	return FALSE;
+}
+
+BOOL LoadSaveFileName(HWND hwnd, LPSTR pszFilename) {
+	OPENFILENAME ofn;
+	char szFilename[MAX_PATH] = "";
+	ZeroMemory(&ofn, sizeof(ofn));
+	ofn.lStructSize = sizeof(ofn);
+	ofn.hwndOwner = hwnd;
+	ofn.lpstrFilter = "Text Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0";
+	ofn.lpstrFile = szFilename;
+	ofn.nMaxFile = MAX_PATH;
+	ofn.Flags = OFN_EXPLORER | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
+	ofn.lpstrDefExt = "txt";
+	
+	if (GetOpenFileName(&ofn)) {
+		LPSTR ptr = lstrcpy(pszFilename, szFilename);
+		if (ptr == NULL) return FALSE;
+		else return TRUE;
+	}
+	return FALSE;
+}
+
+BOOL SaveTextToFile(HWND hEdit, LPCSTR pszFilename) {
+	BOOL bSuccess = FALSE;
+	HANDLE hFile = CreateFile(pszFilename, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (hFile != INVALID_HANDLE_VALUE) {
+		DWORD dwTextLength = GetWindowTextLength(hEdit);
+		LPSTR pszText = GlobalAlloc(GMEM_FIXED, dwTextLength+1);
+		if (pszText != NULL) {
+			if (GetWindowText(hEdit, pszText, dwTextLength+1)) {
+				DWORD dwWritten; //dummy param
+				if (WriteFile(hFile, pszText, dwTextLength, &dwWritten, NULL))
+					bSuccess = TRUE;
+			}
+			GlobalFree(pszText);
+		}
+		CloseHandle(hFile);
+	}
+	return bSuccess;
 }
 
 BOOL LoadTextFileIntoEdit(HWND hEdit, LPCSTR pszFilename) {
@@ -35,7 +74,7 @@ BOOL LoadTextFileIntoEdit(HWND hEdit, LPCSTR pszFilename) {
 		if (dwFileSize != 0xffffffff) {
 			LPSTR pszFileText = GlobalAlloc(GMEM_FIXED, dwFileSize+1);
 			if (pszFileText != NULL) {
-				DWORD dwRead; //useless param
+				DWORD dwRead; //dummy param
 				if (ReadFile(hFile, pszFileText, dwFileSize, &dwRead, NULL)) {
 					pszFileText[dwFileSize] = 0;
 					if (SetWindowText(hEdit, pszFileText))
@@ -74,15 +113,25 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	case WM_COMMAND:
 		switch (LOWORD(wParam)) {
 			case ID_FILE_OPEN:
-				if (LoadOpenFileName(hwnd) != TRUE) MessageBox(hwnd, "Couldn't copy filename!", "Error!", MB_OK | MB_ICONERROR);
+				if (LoadOpenFileName(hwnd, g_szOpenFilename) != TRUE) MessageBox(hwnd, "Couldn't load filename!", "Error!", MB_OK | MB_ICONERROR);
 				else {
-					if (LoadTextFileIntoEdit(GetDlgItem(hwnd, IDC_MAIN_EDIT), szOpenFilename) != TRUE) MessageBox(hwnd, "Couldn't open file!", "Error!", MB_OK | MB_ICONERROR);
+					if (LoadTextFileIntoEdit(GetDlgItem(hwnd, IDC_MAIN_EDIT), g_szOpenFilename) != TRUE) MessageBox(hwnd, "Couldn't open file!", "Error!", MB_OK | MB_ICONERROR);
 				}
 			break;
 			case ID_FILE_SAVE:
-				
+				if (lstrcmp(g_szOpenFilename, "") == 0) {
+					if (LoadSaveFileName(hwnd, g_szOpenFilename) != TRUE) {
+						MessageBox(hwnd, "Couldn't load filename!", "Error!", MB_OK | MB_ICONERROR);
+						break;
+					}
+				}
+				if (SaveTextToFile(GetDlgItem(hwnd, IDC_MAIN_EDIT), g_szOpenFilename) != TRUE) MessageBox(hwnd, "Couldn't save file!", "Error!", MB_OK | MB_ICONERROR);
 			break;
-			case ID_FILE_ABOUT:
+			case ID_FILE_SAVE_AS:
+				if (LoadSaveFileName(hwnd, g_szOpenFilename) != TRUE) MessageBox(hwnd, "Couldn't load filename!", "Error!", MB_OK | MB_ICONERROR);
+				else if (SaveTextToFile(GetDlgItem(hwnd, IDC_MAIN_EDIT), g_szOpenFilename) != TRUE) MessageBox(hwnd, "Couldn't save file!", "Error!", MB_OK | MB_ICONERROR);
+			break;
+			case ID_HELP_ABOUT:
 			{
 				int ret = DialogBox(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_ABOUT), hwnd, AboutDlgProc);
 				if (ret == IDOK) {
