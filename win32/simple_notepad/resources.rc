@@ -12,12 +12,12 @@ BEGIN
     BLOCK "040904E4"
     BEGIN
       VALUE "CompanyName", "SketchyCo"
-      VALUE "FileDescription", "An application for Windows."
+      VALUE "FileDescription", "A simple notepad"
       VALUE "FileVersion", "0.001"
-      VALUE "InternalName", "window_test"
+      VALUE "InternalName", "simple_notepad"
       VALUE "LegalCopyright", "Jason Li"
-      VALUE "OriginalFilename", "window_test.exe"
-      VALUE "ProductName", "TrashApp"
+      VALUE "OriginalFilename", "simple_notepad.exe"
+      VALUE "ProductName", "SimpleNotepad"
       VALUE "ProductVersion", "0.001"
     END
   END
@@ -36,20 +36,10 @@ IDR_MYMENU MENU
 BEGIN
 	POPUP "&File"
 	BEGIN
+		MENUITEM "&Open", ID_FILE_OPEN
+		MENUITEM "&Save", ID_FILE_SAVE
 		MENUITEM "&About", ID_FILE_ABOUT
 		MENUITEM "E&xit", ID_FILE_EXIT
-	END
-	
-	POPUP "&Junk"
-	BEGIN
-		MENUITEM "&Go", ID_STUFF_GO
-		MENUITEM "&Unclickable", 0, GRAYED
-	END
-	
-	POPUP "&Toolbox"
-	BEGIN
-		MENUITEM "&Show", ID_TOOLBOX_SHOW
-		MENUITEM "&Hide", ID_TOOLBOX_HIDE
 	END
 END
 
@@ -62,14 +52,4 @@ BEGIN
     PUSHBUTTON "&I do not like memes", IDCANCEL, 174, 35, 100, 14
     GROUPBOX "Memes in this box...", IDC_STATIC, 7, 7, 275, 52
     CTEXT "Here are\r\nsome\r\nmemes.", IDC_STATIC, 16, 18, 144, 33
-END
-
-IDD_TOOLBOX DIALOGEX 0, 0, 98, 52
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION
-EXSTYLE WS_EX_TOOLWINDOW
-CAPTION "Toolbox"
-FONT 8, "MS Sans Serif"
-BEGIN
-	PUSHBUTTON "&First button", IDC_TOOLBOX_FIRST_BUTTON, 7, 7, 84, 14
-	PUSHBUTTON "&Second button", IDC_TOOLBOX_SECOND_BUTTON, 7, 31, 84, 14
 END

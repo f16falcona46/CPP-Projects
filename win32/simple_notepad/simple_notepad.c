@@ -1,9 +1,53 @@
 #include <windows.h>
 #include "resource.h"
 
-const char* blank_szClassName = "blank_window_class";
+#define IDC_MAIN_EDIT 101
 
-HWND g_hToolbox = NULL;
+const char* notepad_szClassName = "notepad_window_class";
+
+char szOpenFilename[MAX_PATH] = "";
+
+BOOL LoadOpenFileName(HWND hwnd) {
+	OPENFILENAME ofn;
+	char szFilename[MAX_PATH] = "";
+	ZeroMemory(&ofn, sizeof(ofn));
+	ofn.lStructSize = sizeof(ofn);
+	ofn.hwndOwner = hwnd;
+	ofn.lpstrFilter = "Text Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0";
+	ofn.lpstrFile = szFilename;
+	ofn.nMaxFile = MAX_PATH;
+	ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+	ofn.lpstrDefExt = "txt";
+	
+	if (GetOpenFileName(&ofn)) {
+		LPSTR ptr = lstrcpy(szOpenFilename, szFilename);
+		if (ptr == NULL) return FALSE;
+		else return TRUE;
+	}
+	return FALSE;
+}
+
+BOOL LoadTextFileIntoEdit(HWND hEdit, LPCSTR pszFilename) {
+	BOOL bSuccess = FALSE;
+	HANDLE hFile = CreateFile(pszFilename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+	if (hFile != INVALID_HANDLE_VALUE) {
+		DWORD dwFileSize = GetFileSize(hFile, NULL);
+		if (dwFileSize != 0xffffffff) {
+			LPSTR pszFileText = GlobalAlloc(GMEM_FIXED, dwFileSize+1);
+			if (pszFileText != NULL) {
+				DWORD dwRead; //useless param
+				if (ReadFile(hFile, pszFileText, dwFileSize, &dwRead, NULL)) {
+					pszFileText[dwFileSize] = 0;
+					if (SetWindowText(hEdit, pszFileText))
+						bSuccess = TRUE;
+				}
+				GlobalFree(pszFileText);
+			}
+		}
+		CloseHandle(hFile);
+	}
+	return bSuccess;
+}
 
 BOOL CALLBACK AboutDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	switch (msg) {
@@ -25,38 +69,19 @@ BOOL CALLBACK AboutDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	return TRUE;
 }
 
-BOOL CALLBACK ToolboxDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-	switch (msg) {
-		case WM_INITDIALOG:
-		return TRUE;
-		case WM_COMMAND:
-			switch (LOWORD(wParam)) {
-				case IDC_TOOLBOX_FIRST_BUTTON:
-					MessageBox(hwnd, "First button clicked.", "Notice", MB_OK | MB_ICONINFORMATION);
-				break;
-				case IDC_TOOLBOX_SECOND_BUTTON:
-					MessageBox(hwnd, "Second button clicked.", "Notice", MB_OK | MB_ICONINFORMATION);
-				break;
-			}
-		break;
-		default:
-		return FALSE;
-	}
-	return TRUE;
-}
-
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	switch (msg) {
-	case WM_LBUTTONDOWN:
-	{
-		char szFileName[MAX_PATH];
-		HINSTANCE hInstance = GetModuleHandle(NULL);
-		GetModuleFileName(hInstance, szFileName, MAX_PATH);
-		MessageBox(hwnd, szFileName, "This Program Is:", MB_OK | MB_ICONINFORMATION);
-	}
-	break;
 	case WM_COMMAND:
 		switch (LOWORD(wParam)) {
+			case ID_FILE_OPEN:
+				if (LoadOpenFileName(hwnd) != TRUE) MessageBox(hwnd, "Couldn't copy filename!", "Error!", MB_OK | MB_ICONERROR);
+				else {
+					if (LoadTextFileIntoEdit(GetDlgItem(hwnd, IDC_MAIN_EDIT), szOpenFilename) != TRUE) MessageBox(hwnd, "Couldn't open file!", "Error!", MB_OK | MB_ICONERROR);
+				}
+			break;
+			case ID_FILE_SAVE:
+				
+			break;
 			case ID_FILE_ABOUT:
 			{
 				int ret = DialogBox(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_ABOUT), hwnd, AboutDlgProc);
@@ -77,42 +102,34 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			case ID_FILE_EXIT:
 				PostMessage(hwnd, WM_CLOSE, 0, 0);
 			break;
-			case ID_STUFF_GO:
-				MessageBox(hwnd, "this is an amazing message box!!!", "important message", MB_OK | MB_ICONHAND);
-			break;
-			case ID_TOOLBOX_SHOW:
-				if (g_hToolbox != NULL) {
-					ShowWindow(g_hToolbox, SW_SHOW);
-					EnableMenuItem(GetMenu(hwnd), ID_TOOLBOX_SHOW, MF_GRAYED);
-					EnableMenuItem(GetMenu(hwnd), ID_TOOLBOX_HIDE, MF_ENABLED);
-				}
-			break;
-			case ID_TOOLBOX_HIDE:
-				if (g_hToolbox != NULL) {
-					ShowWindow(g_hToolbox, SW_HIDE);
-					EnableMenuItem(GetMenu(hwnd), ID_TOOLBOX_SHOW, MF_ENABLED);
-					EnableMenuItem(GetMenu(hwnd), ID_TOOLBOX_HIDE, MF_GRAYED);
-				}
-			break;
 		}
 	break;
 	case WM_CREATE:
-		g_hToolbox = CreateDialog(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_TOOLBOX), hwnd, ToolboxDlgProc);
-		if (g_hToolbox != NULL) {
-			ShowWindow(g_hToolbox, SW_SHOW);
-			EnableMenuItem(GetMenu(hwnd), ID_TOOLBOX_SHOW, MF_GRAYED);
+	{
+		HWND hEdit = CreateWindowEx(WS_EX_CLIENTEDGE, "EDIT", "",
+			WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_HSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL,
+			0, 0, 100, 100, hwnd, (HMENU)IDC_MAIN_EDIT, GetModuleHandle(NULL), NULL);
+		if (hEdit == NULL) {
+			MessageBox(hwnd, "Couldn't create Edit control!", "Error!", MB_OK | MB_ICONERROR);
 		}
 		else {
-			EnableMenuItem(GetMenu(hwnd), ID_TOOLBOX_SHOW, MF_GRAYED);
-			EnableMenuItem(GetMenu(hwnd), ID_TOOLBOX_HIDE, MF_GRAYED);
-			MessageBox(hwnd, "Couldn't create toolbox window!", "Error!", MB_OK | MB_ICONEXCLAMATION);
+			HFONT hDefault = GetStockObject(DEFAULT_GUI_FONT);
+			SendMessage(hEdit, WM_SETFONT, (WPARAM)hDefault, MAKELPARAM(FALSE, 0));
 		}
+	}
+	break;
+	case WM_SIZE:
+	{
+		RECT rcClient;
+		GetClientRect(hwnd, &rcClient);
+		HWND hEdit = GetDlgItem(hwnd, IDC_MAIN_EDIT);
+		SetWindowPos(hEdit, NULL, 0, 0, rcClient.right, rcClient.bottom, SWP_NOZORDER);
+	}
 	break;
 	case WM_CLOSE:
 		DestroyWindow(hwnd);
 	break;
 	case WM_DESTROY:
-		DestroyWindow(g_hToolbox);
 		PostQuitMessage(0);
 	break;
 	default:
@@ -134,7 +151,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, char* lpCmdLine,
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
 	wc.lpszMenuName = MAKEINTRESOURCE(IDR_MYMENU);
-	wc.lpszClassName = blank_szClassName;
+	wc.lpszClassName = notepad_szClassName;
 	wc.hIconSm = LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MYICON), IMAGE_ICON, 16, 16, 0);
 
 	if (!RegisterClassEx(&wc)) {
@@ -144,8 +161,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, char* lpCmdLine,
 
 	HWND hwnd = CreateWindowEx(
 		WS_EX_CLIENTEDGE,
-		blank_szClassName,
-		"Window Title",
+		notepad_szClassName,
+		"Simple Notepad",
 		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT, 320, 240,
 		NULL, NULL, hInstance, NULL);
@@ -160,10 +177,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, char* lpCmdLine,
 	
 	MSG msg;
 	while (GetMessage(&msg, NULL, 0, 0) > 0) {
-		if (!IsDialogMessage(g_hToolbox, &msg)) {
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
 	}
 	return msg.wParam;
 }
