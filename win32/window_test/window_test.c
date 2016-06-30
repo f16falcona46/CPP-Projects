@@ -13,6 +13,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		MessageBox(hwnd, szFileName, "This Program Is:", MB_OK | MB_ICONINFORMATION);
 	}
 	break;
+	case WM_COMMAND:
+		switch (LOWORD(wParam)) {
+			case ID_FILE_EXIT:
+				PostMessage(hwnd, WM_CLOSE, 0, 0);
+			break;
+			case ID_STUFF_GO:
+				MessageBox(hwnd, "this is an amazing message box!!!", "important message", MB_ICONHAND | MB_OK);
+			break;
+		}
+	break;
 	case WM_CLOSE:
 		DestroyWindow(hwnd);
 	break;
