@@ -1,6 +1,8 @@
 #ifndef WINDOW_TEST_RESOURCE_H
 #define WINDOW_TEST_RESOURCE_H
 
+#define IDC_STATIC -1
+
 #define IDI_MYEXEICON 201
 #define IDI_MYICON 202
 
@@ -10,6 +12,9 @@
 #define ID_STUFF_GO 9011
 
 #define IDD_ABOUT 301
-#define IDC_STATIC -1
+
+#define IDD_TOOLBOX 302
+#define IDC_TOOLBOX_FIRST_BUTTON 9101
+#define IDC_TOOLBOX_SECOND_BUTTON 9102
 
 #endif

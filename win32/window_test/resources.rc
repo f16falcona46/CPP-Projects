@@ -52,9 +52,18 @@ STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Memes"
 FONT 8, "MS Sans Serif"
 BEGIN
-    DEFPUSHBUTTON   "&Finish viewing memes",IDOK,174,18,100,14
-    PUSHBUTTON      "&I do not like memes",IDCANCEL,174,35,100,14
-    GROUPBOX        "Memes in this box...",IDC_STATIC,7,7,275,52
-    CTEXT           "Here are\r\nsome\r\nmemes.",
-                    IDC_STATIC,16,18,144,33
+    DEFPUSHBUTTON "&Finish viewing memes", IDOK, 174, 18, 100, 14
+    PUSHBUTTON "&I do not like memes", IDCANCEL, 174, 35, 100, 14
+    GROUPBOX "Memes in this box...", IDC_STATIC, 7, 7, 275, 52
+    CTEXT "Here are\r\nsome\r\nmemes.", IDC_STATIC, 16, 18, 144, 33
+END
+
+IDD_TOOLBOX DIALOGEX 0, 0, 98, 52
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION
+EXSTYLE WS_EX_TOOLWINDOW
+CAPTION "Toolbox"
+FONT 8, "MS Sans Serif"
+BEGIN
+	PUSHBUTTON "&First button", IDC_TOOLBOX_FIRST_BUTTON, 7, 7, 84, 14
+	PUSHBUTTON "&Second button", IDC_TOOLBOX_SECOND_BUTTON, 7, 31, 84, 14
 END

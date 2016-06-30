@@ -3,10 +3,11 @@
 
 const char* blank_szClassName = "blank_window_class";
 
+HWND g_hToolbox = NULL;
+
 BOOL CALLBACK AboutDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	switch (msg) {
 		case WM_INITDIALOG:
-			
 		return TRUE;
 		case WM_COMMAND:
 			switch (LOWORD(wParam)) {
@@ -15,6 +16,26 @@ BOOL CALLBACK AboutDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 				break;
 				case IDCANCEL:
 					EndDialog(hwnd, IDCANCEL);
+				break;
+			}
+		break;
+		default:
+		return FALSE;
+	}
+	return TRUE;
+}
+
+BOOL CALLBACK ToolboxDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+	switch (msg) {
+		case WM_INITDIALOG:
+		return TRUE;
+		case WM_COMMAND:
+			switch (LOWORD(wParam)) {
+				case IDC_TOOLBOX_FIRST_BUTTON:
+					MessageBox(hwnd, "First button clicked.", "Notice", MB_OK | MB_ICONINFORMATION);
+				break;
+				case IDC_TOOLBOX_SECOND_BUTTON:
+					MessageBox(hwnd, "Second button clicked.", "Notice", MB_OK | MB_ICONINFORMATION);
 				break;
 			}
 		break;
@@ -57,14 +78,24 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 				PostMessage(hwnd, WM_CLOSE, 0, 0);
 			break;
 			case ID_STUFF_GO:
-				MessageBox(hwnd, "this is an amazing message box!!!", "important message", MB_ICONHAND | MB_OK);
+				MessageBox(hwnd, "this is an amazing message box!!!", "important message", MB_OK | MB_ICONHAND);
 			break;
+		}
+	break;
+	case WM_CREATE:
+		g_hToolbox = CreateDialog(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_TOOLBOX), hwnd, ToolboxDlgProc);
+		if (g_hToolbox != NULL) {
+			ShowWindow(g_hToolbox, SW_SHOW);
+		}
+		else {
+			MessageBox(hwnd, "Couldn't create toolbox window!", "Error!", MB_OK | MB_ICONEXCLAMATION);
 		}
 	break;
 	case WM_CLOSE:
 		DestroyWindow(hwnd);
 	break;
 	case WM_DESTROY:
+		DestroyWindow(g_hToolbox);
 		PostQuitMessage(0);
 	break;
 	default:
