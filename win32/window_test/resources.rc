@@ -1,3 +1,4 @@
+#include <windows.h>
 #include "resource.h"
 
 1 VERSIONINFO
@@ -33,6 +34,7 @@ IDR_MYMENU MENU
 BEGIN
 	POPUP "&File"
 	BEGIN
+		MENUITEM "&About", ID_FILE_ABOUT
 		MENUITEM "E&xit", ID_FILE_EXIT
 	END
 	
@@ -41,4 +43,16 @@ BEGIN
 		MENUITEM "&Go", ID_STUFF_GO
 		MENUITEM "&Unclickable", 0, GRAYED
 	END
+END
+
+IDD_ABOUT DIALOG DISCARDABLE  0, 0, 289, 66
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Memes"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "&Finish viewing memes",IDOK,174,18,100,14
+    PUSHBUTTON      "&I do not like memes",IDCANCEL,174,35,100,14
+    GROUPBOX        "Memes in this box...",IDC_STATIC,7,7,275,52
+    CTEXT           "Here are\r\nsome\r\nmemes.",
+                    IDC_STATIC,16,18,144,33
 END

@@ -3,6 +3,27 @@
 
 const char* blank_szClassName = "blank_window_class";
 
+BOOL CALLBACK AboutDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+	switch (msg) {
+		case WM_INITDIALOG:
+			
+		return TRUE;
+		case WM_COMMAND:
+			switch (LOWORD(wParam)) {
+				case IDOK:
+					EndDialog(hwnd, IDOK);
+				break;
+				case IDCANCEL:
+					EndDialog(hwnd, IDCANCEL);
+				break;
+			}
+		break;
+		default:
+		return FALSE;
+	}
+	return TRUE;
+}
+
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	switch (msg) {
 	case WM_LBUTTONDOWN:
@@ -15,6 +36,23 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	break;
 	case WM_COMMAND:
 		switch (LOWORD(wParam)) {
+			case ID_FILE_ABOUT:
+			{
+				int ret = DialogBox(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_ABOUT), hwnd, AboutDlgProc);
+				if (ret == IDOK) {
+					MessageBox(hwnd, "Dialog exited with IDOK.", "Notice", MB_OK | MB_ICONINFORMATION);
+				}
+				else if (ret = IDCANCEL) {
+					MessageBox(hwnd, "Dialog exited with IDCANCEL.", "Notice", MB_OK | MB_ICONINFORMATION);
+				}
+				else if (ret == -1) {
+					MessageBox(hwnd, "Dialog failed!", "Error!", MB_OK | MB_ICONERROR);
+				}
+				else {
+					MessageBox(hwnd, "Dialog exited with something else.", "Notice", MB_OK | MB_ICONINFORMATION);
+				}
+			}
+			break;
 			case ID_FILE_EXIT:
 				PostMessage(hwnd, WM_CLOSE, 0, 0);
 			break;
@@ -61,7 +99,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, char* lpCmdLine,
 		blank_szClassName,
 		"Window Title",
 		WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT, CW_USEDEFAULT, 240, 120,
+		CW_USEDEFAULT, CW_USEDEFAULT, 320, 240,
 		NULL, NULL, hInstance, NULL);
 	
 	if (hwnd == NULL) {

@@ -5,7 +5,11 @@
 #define IDI_MYICON 202
 
 #define IDR_MYMENU 101
-#define ID_FILE_EXIT 9001
-#define ID_STUFF_GO 9002
+#define ID_FILE_ABOUT 9001
+#define ID_FILE_EXIT 9002
+#define ID_STUFF_GO 9011
+
+#define IDD_ABOUT 301
+#define IDC_STATIC -1
 
 #endif
