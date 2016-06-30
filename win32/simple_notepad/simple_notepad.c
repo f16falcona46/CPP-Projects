@@ -1,7 +1,7 @@
 #include <windows.h>
 #include "resource.h"
 
-#define IDC_MAIN_EDIT 101
+#define IDC_MAIN_EDIT 51
 
 const char* notepad_szClassName = "notepad_window_class";
 
@@ -204,7 +204,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, char* lpCmdLine,
 	wc.hIconSm = LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MYICON), IMAGE_ICON, 16, 16, 0);
 
 	if (!RegisterClassEx(&wc)) {
-		MessageBox(NULL, "Window Registration Failed!", "Error!", MB_ICONEXCLAMATION | MB_OK);
+		MessageBox(NULL, "Window Registration Failed!", "Error!", MB_ICONERROR | MB_OK);
 		return 0;
 	}
 
@@ -217,8 +217,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, char* lpCmdLine,
 		NULL, NULL, hInstance, NULL);
 	
 	if (hwnd == NULL) {
-		MessageBox(NULL, "Window Creation Failed!", "Error!", MB_ICONEXCLAMATION | MB_OK);
+		MessageBox(NULL, "Window Creation Failed!", "Error!", MB_ICONERROR | MB_OK);
 		return 0;
+	}
+	
+	HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(KB_ACCELERATORS));
+	if (hAccelTable == NULL) {
+		MessageBox(NULL, "Loading Keyboard Hotkeys Failed!", "Error!", MB_ICONERROR | MB_OK);
 	}
 
 	ShowWindow(hwnd, nCmdShow);
@@ -226,8 +231,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, char* lpCmdLine,
 	
 	MSG msg;
 	while (GetMessage(&msg, NULL, 0, 0) > 0) {
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
+		if (hAccelTable) {
+			if (!TranslateAccelerator(hwnd, hAccelTable, &msg)) {
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+			}
+		}
+		else {
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
 	}
 	return msg.wParam;
 }

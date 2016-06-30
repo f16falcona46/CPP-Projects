@@ -6,7 +6,9 @@ all: simple_notepad.exe
 simple_notepad.exe: simple_notepad.o resources.o
 	$(CC) -mwindows -o simple_notepad.exe simple_notepad.o resources.o
 
-resources.o: resources.rc Application.manifest exeicons.ico icons.ico
+simple_notepad.o: resource.h
+
+resources.o: resources.rc Application.manifest exeicons.ico icons.ico resource.h
 	windres resources.rc -O coff -o resources.o
 
 clean:

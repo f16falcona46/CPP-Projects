@@ -14,6 +14,8 @@
 
 #define ID_HELP_ABOUT 9011
 
-#define IDD_ABOUT 301
+#define IDD_ABOUT 102
+
+#define KB_ACCELERATORS 301
 
 #endif
