@@ -40,10 +40,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			{
 				int ret = DialogBox(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_ABOUT), hwnd, AboutDlgProc);
 				if (ret == IDOK) {
-					MessageBox(hwnd, "Dialog exited with IDOK.", "Notice", MB_OK | MB_ICONINFORMATION);
+					MessageBox(hwnd, "You are an okay person.", "Notice", MB_OK | MB_ICONINFORMATION);
 				}
 				else if (ret = IDCANCEL) {
-					MessageBox(hwnd, "Dialog exited with IDCANCEL.", "Notice", MB_OK | MB_ICONINFORMATION);
+					MessageBox(hwnd, "This fool does not like memes.", "Notice", MB_OK | MB_ICONINFORMATION);
 				}
 				else if (ret == -1) {
 					MessageBox(hwnd, "Dialog failed!", "Error!", MB_OK | MB_ICONERROR);
