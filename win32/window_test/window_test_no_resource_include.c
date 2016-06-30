@@ -1,10 +1,41 @@
 #include <windows.h>
-#include "resource.h"
+
+#define ID_FILE_EXIT 9001
+#define ID_STUFF_GO 9002
+#define ID_STUFF_GRAYED 9003
 
 const char* blank_szClassName = "blank_window_class";
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	switch (msg) {
+	case WM_CREATE:
+	{
+		HMENU hMenu = CreateMenu();
+		HMENU hSubMenu = CreatePopupMenu();
+		AppendMenu(hSubMenu, MF_STRING, ID_FILE_EXIT, "E&xit");
+		AppendMenu(hMenu, MF_STRING | MF_POPUP, (UINT)hSubMenu, "&File");
+		hSubMenu = CreatePopupMenu();
+		AppendMenu(hSubMenu, MF_STRING, ID_STUFF_GO, "&Go");
+		AppendMenu(hSubMenu, MF_STRING | MF_GRAYED, ID_STUFF_GRAYED, "G&rayed");
+		AppendMenu(hMenu, MF_STRING | MF_POPUP, (UINT)hSubMenu, "&Stuff");
+		SetMenu(hwnd, hMenu);
+		
+		HICON hIcon = LoadImage(NULL, "icons.ico", IMAGE_ICON, 32, 32, LR_LOADFROMFILE);
+		if (hIcon) {
+			SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
+		}
+		else {
+			MessageBox(hwnd, "Couldn't set large icon!", "Error!", MB_ICONEXCLAMATION | MB_OK);
+		}
+		HICON hIconSm = LoadImage(NULL, "icons.ico", IMAGE_ICON, 16, 16, LR_LOADFROMFILE);
+		if (hIconSm) {
+			SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)hIconSm);
+		}
+		else {
+			MessageBox(hwnd, "Couldn't set small icon!", "Error!", MB_ICONEXCLAMATION | MB_OK);
+		}
+	}
+	break;
 	case WM_LBUTTONDOWN:
 	{
 		char szFileName[MAX_PATH];
@@ -34,12 +65,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, char* lpCmdLine,
 	wc.cbClsExtra = 0;
 	wc.cbWndExtra = 0;
 	wc.hInstance = hInstance;
-	wc.hIcon = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MYICON));
+	wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
-	wc.lpszMenuName = MAKEINTRESOURCE(IDR_MYMENU);
+	wc.lpszMenuName = NULL;
 	wc.lpszClassName = blank_szClassName;
-	wc.hIconSm = LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MYICON), IMAGE_ICON, 16, 16, 0);
+	wc.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
 
 	if (!RegisterClassEx(&wc)) {
 		MessageBox(NULL, "Window Registration Failed!", "Error!", MB_ICONEXCLAMATION | MB_OK);
