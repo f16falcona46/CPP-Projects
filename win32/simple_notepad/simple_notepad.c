@@ -21,10 +21,17 @@ BOOL LoadOpenFileName(HWND hwnd, LPSTR pszFilename) {
 	
 	if (GetOpenFileName(&ofn)) {
 		LPSTR ptr = lstrcpy(pszFilename, szFilename);
-		if (ptr == NULL) return FALSE;
+		if (ptr == NULL) {
+			MessageBox(hwnd, "Couldn't load filename!", "Error!", MB_OK | MB_ICONERROR);
+		}
 		else return TRUE;
 	}
-	return FALSE;
+	else {
+		if (CommDlgExtendedError() != 0) {
+			MessageBox(hwnd, "Couldn't load filename!", "Error!", MB_OK | MB_ICONERROR);
+		}
+		else return FALSE;
+	}
 }
 
 BOOL LoadSaveFileName(HWND hwnd, LPSTR pszFilename) {
@@ -39,12 +46,19 @@ BOOL LoadSaveFileName(HWND hwnd, LPSTR pszFilename) {
 	ofn.Flags = OFN_EXPLORER | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
 	ofn.lpstrDefExt = "txt";
 	
-	if (GetOpenFileName(&ofn)) {
+	if (GetSaveFileName(&ofn)) {
 		LPSTR ptr = lstrcpy(pszFilename, szFilename);
-		if (ptr == NULL) return FALSE;
+		if (ptr == NULL) {
+			MessageBox(hwnd, "Couldn't load filename!", "Error!", MB_OK | MB_ICONERROR);
+		}
 		else return TRUE;
 	}
-	return FALSE;
+	else {
+		if (CommDlgExtendedError()) {
+			MessageBox(hwnd, "Couldn't load filename!", "Error!", MB_OK | MB_ICONERROR);
+		}
+		else return FALSE;
+	}
 }
 
 BOOL SaveTextToFile(HWND hEdit, LPCSTR pszFilename) {
@@ -113,23 +127,18 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	case WM_COMMAND:
 		switch (LOWORD(wParam)) {
 			case ID_FILE_OPEN:
-				if (LoadOpenFileName(hwnd, g_szOpenFilename) != TRUE) MessageBox(hwnd, "Couldn't load filename!", "Error!", MB_OK | MB_ICONERROR);
-				else {
+				if (LoadOpenFileName(hwnd, g_szOpenFilename) == TRUE)
 					if (LoadTextFileIntoEdit(GetDlgItem(hwnd, IDC_MAIN_EDIT), g_szOpenFilename) != TRUE) MessageBox(hwnd, "Couldn't open file!", "Error!", MB_OK | MB_ICONERROR);
-				}
 			break;
 			case ID_FILE_SAVE:
 				if (lstrcmp(g_szOpenFilename, "") == 0) {
-					if (LoadSaveFileName(hwnd, g_szOpenFilename) != TRUE) {
-						MessageBox(hwnd, "Couldn't load filename!", "Error!", MB_OK | MB_ICONERROR);
-						break;
-					}
+					if (LoadSaveFileName(hwnd, g_szOpenFilename) != TRUE) break;
 				}
 				if (SaveTextToFile(GetDlgItem(hwnd, IDC_MAIN_EDIT), g_szOpenFilename) != TRUE) MessageBox(hwnd, "Couldn't save file!", "Error!", MB_OK | MB_ICONERROR);
 			break;
 			case ID_FILE_SAVE_AS:
-				if (LoadSaveFileName(hwnd, g_szOpenFilename) != TRUE) MessageBox(hwnd, "Couldn't load filename!", "Error!", MB_OK | MB_ICONERROR);
-				else if (SaveTextToFile(GetDlgItem(hwnd, IDC_MAIN_EDIT), g_szOpenFilename) != TRUE) MessageBox(hwnd, "Couldn't save file!", "Error!", MB_OK | MB_ICONERROR);
+				if (LoadSaveFileName(hwnd, g_szOpenFilename) == TRUE)
+					if (SaveTextToFile(GetDlgItem(hwnd, IDC_MAIN_EDIT), g_szOpenFilename) != TRUE) MessageBox(hwnd, "Couldn't save file!", "Error!", MB_OK | MB_ICONERROR);
 			break;
 			case ID_HELP_ABOUT:
 			{
