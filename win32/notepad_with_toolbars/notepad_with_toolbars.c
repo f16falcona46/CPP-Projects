@@ -14,6 +14,7 @@ const char* notepad_szClassName = "notepad_window_class";
 
 char g_szOpenFilename[MAX_PATH] = "";
 
+//enables or disables the Undo menu item based on whether the edit control can be undone.
 void UpdateUndoButton(HWND hwnd) {
 	if (SendMessage(GetDlgItem(hwnd, IDC_MAIN_EDIT), EM_CANUNDO, (WPARAM)0, (LPARAM)0) == TRUE)
 		EnableMenuItem(GetMenu(hwnd), ID_EDIT_UNDO, MF_ENABLED);
@@ -21,13 +22,24 @@ void UpdateUndoButton(HWND hwnd) {
 		EnableMenuItem(GetMenu(hwnd), ID_EDIT_UNDO, MF_GRAYED);
 }
 
+//updates the Modified/Unmodified part of the status bar based on whether the edit control is modified.
 void UpdateStatusBar(HWND hwnd) {
-	if (SendMessage(GetDlgItem(hwnd, IDC_MAIN_EDIT), EM_GETMODIFY, (WPARAM)0, (LPARAM)0))
-		SendMessage(GetDlgItem(hwnd, IDC_MAIN_STATUSBAR), SB_SETTEXT, 0, (LPARAM)"Modified");
+	BOOL bStatusChanged = TRUE;
+	LPSTR pszText = GlobalAlloc(GMEM_FIXED, LOWORD(SendMessage(GetDlgItem(hwnd, IDC_MAIN_STATUSBAR), SB_GETTEXTLENGTH, (WPARAM)0, (LPARAM)0))+1);
+	if (pszText != NULL) {
+		SendMessage(GetDlgItem(hwnd, IDC_MAIN_STATUSBAR), SB_GETTEXT, (WPARAM)0, (LPARAM)pszText);
+		if (!lstrcmp(pszText, "Modified")) bStatusChanged = FALSE;
+		GlobalFree(pszText);
+	}
+	if (SendMessage(GetDlgItem(hwnd, IDC_MAIN_EDIT), EM_GETMODIFY, (WPARAM)0, (LPARAM)0)) {
+		if (bStatusChanged)
+			SendMessage(GetDlgItem(hwnd, IDC_MAIN_STATUSBAR), SB_SETTEXT, 0, (LPARAM)"Modified");
+	}
 	else
 		SendMessage(GetDlgItem(hwnd, IDC_MAIN_STATUSBAR), SB_SETTEXT, 0, (LPARAM)"Unmodified");
 }
 
+//updates the title text of the main window
 void updateTitleText(HWND hwnd) {
 	if (lstrcmp(g_szOpenFilename, "")) {
 		char szTitleText[MAX_PATH + 25]; //24, but an extra one to be safe.
@@ -40,6 +52,9 @@ void updateTitleText(HWND hwnd) {
 	}
 }
 
+//loads a filename from an open file dialog into g_szOpenFilename
+//can spawn a messagebox if the file dialog fails
+//TRUE if g_szOpenFilename changed, FALSE if not
 BOOL LoadOpenFileName(HWND hwnd, LPSTR pszFilename) {
 	OPENFILENAME ofn;
 	char szFilename[MAX_PATH] = "";
@@ -70,6 +85,9 @@ BOOL LoadOpenFileName(HWND hwnd, LPSTR pszFilename) {
 	}
 }
 
+//loads a filename from a save file dialog into g_szOpenFilename
+//can spawn a messagebox if the file dialog fails
+//TRUE if g_szOpenFilename changed, FALSE if not
 BOOL LoadSaveFileName(HWND hwnd, LPSTR pszFilename) {
 	OPENFILENAME ofn;
 	char szFilename[MAX_PATH] = "";
@@ -100,6 +118,8 @@ BOOL LoadSaveFileName(HWND hwnd, LPSTR pszFilename) {
 	}
 }
 
+//saves the edit control's text into g_szOpenFilename
+//returns TRUE if it was successful, FALSE if not
 BOOL SaveTextToFile(HWND hEdit, LPCSTR pszFilename) {
 	BOOL bSuccess = FALSE;
 	HANDLE hFile = CreateFile(pszFilename, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -119,6 +139,8 @@ BOOL SaveTextToFile(HWND hEdit, LPCSTR pszFilename) {
 	return bSuccess;
 }
 
+//loads the text in g_szOpenFilename into the edit control
+//returns TRUE if it was successful, FALSE if not
 BOOL LoadTextFileIntoEdit(HWND hEdit, LPCSTR pszFilename) {
 	BOOL bSuccess = FALSE;
 	HANDLE hFile = CreateFile(pszFilename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
@@ -141,6 +163,7 @@ BOOL LoadTextFileIntoEdit(HWND hEdit, LPCSTR pszFilename) {
 	return bSuccess;
 }
 
+//callback for the About dialog
 BOOL CALLBACK AboutDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	switch (msg) {
 		case WM_INITDIALOG:
@@ -161,24 +184,25 @@ BOOL CALLBACK AboutDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	return TRUE;
 }
 
+//callback for the main window
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	switch (msg) {
 	case WM_COMMAND:
 		if ((HWND)lParam == GetDlgItem(hwnd, IDC_MAIN_EDIT)) {
-			if (HIWORD(wParam) == EN_UPDATE) {
+			if (HIWORD(wParam) == EN_UPDATE) { //edit control's text changed
 				UpdateUndoButton(hwnd);
 				UpdateStatusBar(hwnd);
 			}
 		}
-		switch (LOWORD(wParam)) {
+		switch (LOWORD(wParam)) { //menu stuff
 			case ID_FILE_NEW:
-				if (SendMessage(GetDlgItem(hwnd, IDC_MAIN_EDIT), EM_GETMODIFY, (WPARAM)0, (LPARAM)0)) {
-					if (MessageBox(hwnd, "Open a new file and lose these changes?", "Unsaved Changes", MB_YESNO | MB_ICONEXCLAMATION) != IDYES) {
+				if (SendMessage(GetDlgItem(hwnd, IDC_MAIN_EDIT), EM_GETMODIFY, (WPARAM)0, (LPARAM)0)) { //test if edit control's text was modified
+					if (MessageBox(hwnd, "Open a new file and lose these changes?", "Unsaved Changes", MB_YESNO | MB_ICONEXCLAMATION) != IDYES) { //confirmation
 						break;
 					}
 				}
-				if (SetWindowText(GetDlgItem(hwnd, IDC_MAIN_EDIT), "") == TRUE) {
-					g_szOpenFilename[0] = '\0';
+				if (SetWindowText(GetDlgItem(hwnd, IDC_MAIN_EDIT), "") == TRUE) { //test if edit control's text was set successfully
+					g_szOpenFilename[0] = '\0'; //no open file
 					SendMessage(GetDlgItem(hwnd, IDC_MAIN_EDIT), EM_SETMODIFY, (WPARAM)FALSE, (LPARAM)0);
 					UpdateUndoButton(hwnd);
 					UpdateStatusBar(hwnd);
@@ -188,8 +212,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 				}
 			break;
 			case ID_FILE_OPEN:
-				if (SendMessage(GetDlgItem(hwnd, IDC_MAIN_EDIT), EM_GETMODIFY, (WPARAM)0, (LPARAM)0)) {
-					if (MessageBox(hwnd, "Open a new file and lose these changes?", "Unsaved Changes", MB_YESNO | MB_ICONEXCLAMATION) != IDYES) {
+				if (SendMessage(GetDlgItem(hwnd, IDC_MAIN_EDIT), EM_GETMODIFY, (WPARAM)0, (LPARAM)0)) { //test if edit control's text was modified
+					if (MessageBox(hwnd, "Open a new file and lose these changes?", "Unsaved Changes", MB_YESNO | MB_ICONEXCLAMATION) != IDYES) { //confirmation
 						break;
 					}
 				}
