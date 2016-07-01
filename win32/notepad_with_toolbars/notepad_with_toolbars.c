@@ -8,6 +8,7 @@
 #define MINIMUM_WINDOW_HEIGHT 240
 
 #define IDC_MAIN_EDIT 51
+#define IDC_MAIN_STATUSBAR 52
 
 const char* notepad_szClassName = "notepad_window_class";
 
@@ -188,13 +189,19 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		HWND hEdit = CreateWindowEx(WS_EX_CLIENTEDGE, "EDIT", "",
 			WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_HSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL,
 			0, 0, 100, 100, hwnd, (HMENU)IDC_MAIN_EDIT, GetModuleHandle(NULL), NULL);
-		if (hEdit == NULL) {
-			MessageBox(hwnd, "Couldn't create Edit control!", "Error!", MB_OK | MB_ICONERROR);
+		HWND hStatus = CreateWindowEx(0, STATUSCLASSNAME, NULL, WS_CHILD | WS_VISIBLE | SBARS_SIZEGRIP,
+			0, 0, 0, 0, hwnd, (HMENU)IDC_MAIN_STATUSBAR, GetModuleHandle(NULL), NULL);
+		if (hEdit == NULL || hStatus == NULL) {
+			MessageBox(hwnd, "Couldn't create controls!", "Error!", MB_OK | MB_ICONERROR);
 		}
 		else {
 			HFONT hDefault = GetStockObject(DEFAULT_GUI_FONT);
 			SendMessage(hEdit, WM_SETFONT, (WPARAM)hDefault, MAKELPARAM(FALSE, 0));
 			UpdateUndoButton(hwnd);
+			
+			int statuswidths[] = {100, -1};
+			SendMessage(hStatus, SB_SETPARTS, sizeof(statuswidths)/sizeof(int), (LPARAM)statuswidths);
+			SendMessage(hStatus, SB_SETTEXT, 0, (LPARAM)"test");
 		}
 	}
 	break;
@@ -202,8 +209,18 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	{
 		RECT rcClient;
 		GetClientRect(hwnd, &rcClient);
+		
+		RECT rcEdit;
 		HWND hEdit = GetDlgItem(hwnd, IDC_MAIN_EDIT);
-		SetWindowPos(hEdit, NULL, 0, 0, rcClient.right, rcClient.bottom, SWP_NOZORDER);
+		
+		RECT rcStatusbar;
+		HWND hStatusbar = GetDlgItem(hwnd, IDC_MAIN_STATUSBAR);
+		SendMessage(hStatusbar, WM_SIZE, 0, 0);
+		GetWindowRect(hStatusbar, &rcStatusbar);
+		int iStatusbarHeight = rcStatusbar.bottom - rcStatusbar.top;
+		
+		int iEditHeight = rcClient.bottom - iStatusbarHeight;
+		SetWindowPos(hEdit, NULL, 0, 0, rcClient.right, iEditHeight, SWP_NOZORDER);
 	}
 	break;
 	case WM_GETMINMAXINFO:
@@ -255,7 +272,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, char* lpCmdLine,
 	HWND hwnd = CreateWindowEx(
 		WS_EX_CLIENTEDGE,
 		notepad_szClassName,
-		"Simple Notepad",
+		"Notepad with Toolbars",
 		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT,
 		NULL, NULL, hInstance, NULL);
