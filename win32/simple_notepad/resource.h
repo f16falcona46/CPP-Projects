@@ -11,7 +11,7 @@
 #define ID_FILE_SAVE 9002
 #define ID_FILE_SAVE_AS 9003
 #define ID_FILE_EXIT 9004
-
+#define ID_EDIT_UNDO 9011
 #define ID_HELP_ABOUT 9021
 
 #define IDD_ABOUT 102

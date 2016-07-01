@@ -1,5 +1,4 @@
 #include <windows.h>
-#include <Windowsx.h>
 #include "resource.h"
 
 #define IDC_MAIN_EDIT 51
@@ -7,6 +6,13 @@
 const char* notepad_szClassName = "notepad_window_class";
 
 char g_szOpenFilename[MAX_PATH] = "";
+
+void UpdateUndoButton(HWND hwnd) {
+	if (SendMessage(GetDlgItem(hwnd, IDC_MAIN_EDIT), EM_CANUNDO, (WPARAM)0, (LPARAM)0) == TRUE)
+		EnableMenuItem(GetMenu(hwnd), ID_EDIT_UNDO, MF_ENABLED);
+	else
+		EnableMenuItem(GetMenu(hwnd), ID_EDIT_UNDO, MF_GRAYED);
+}
 
 BOOL LoadOpenFileName(HWND hwnd, LPSTR pszFilename) {
 	OPENFILENAME ofn;
@@ -126,10 +132,15 @@ BOOL CALLBACK AboutDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	switch (msg) {
 	case WM_COMMAND:
+		if ((HWND)lParam == GetDlgItem(hwnd, IDC_MAIN_EDIT)) {
+			if (HIWORD(wParam) == EN_UPDATE) UpdateUndoButton(hwnd);
+		}
 		switch (LOWORD(wParam)) {
 			case ID_FILE_OPEN:
-				if (LoadOpenFileName(hwnd, g_szOpenFilename) == TRUE)
+				if (LoadOpenFileName(hwnd, g_szOpenFilename) == TRUE) {
 					if (LoadTextFileIntoEdit(GetDlgItem(hwnd, IDC_MAIN_EDIT), g_szOpenFilename) != TRUE) MessageBox(hwnd, "Couldn't open file!", "Error!", MB_OK | MB_ICONERROR);
+					else UpdateUndoButton(hwnd);
+				}
 			break;
 			case ID_FILE_SAVE:
 				if (lstrcmp(g_szOpenFilename, "") == 0) {
@@ -140,6 +151,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			case ID_FILE_SAVE_AS:
 				if (LoadSaveFileName(hwnd, g_szOpenFilename) == TRUE)
 					if (SaveTextToFile(GetDlgItem(hwnd, IDC_MAIN_EDIT), g_szOpenFilename) != TRUE) MessageBox(hwnd, "Couldn't save file!", "Error!", MB_OK | MB_ICONERROR);
+			break;
+			case ID_EDIT_UNDO:
+				SendMessage(GetDlgItem(hwnd, IDC_MAIN_EDIT), EM_UNDO, (WPARAM)0, (LPARAM)0);
 			break;
 			case ID_HELP_ABOUT:
 			{
@@ -174,6 +188,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		else {
 			HFONT hDefault = GetStockObject(DEFAULT_GUI_FONT);
 			SendMessage(hEdit, WM_SETFONT, (WPARAM)hDefault, MAKELPARAM(FALSE, 0));
+			UpdateUndoButton(hwnd);
 		}
 	}
 	break;
@@ -186,7 +201,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	}
 	break;
 	case WM_CLOSE:
-		if (Edit_GetModify(GetDlgItem(hwnd, IDC_MAIN_EDIT)) == TRUE) {
+		if (SendMessage(GetDlgItem(hwnd, IDC_MAIN_EDIT), EM_GETMODIFY, (WPARAM)0, (LPARAM)0)) {
 			if (MessageBox(hwnd, "Quit without saving?", "Unsaved Changes", MB_OKCANCEL | MB_ICONEXCLAMATION) == IDOK) DestroyWindow(hwnd);
 			else break;
 		}
