@@ -1,6 +1,11 @@
 #include <windows.h>
 #include "resource.h"
 
+#define DEFAULT_WINDOW_WIDTH 640
+#define DEFAULT_WINDOW_HEIGHT 480
+#define MINIMUM_WINDOW_WIDTH 320
+#define MINIMUM_WINDOW_HEIGHT 240
+
 #define IDC_MAIN_EDIT 51
 
 const char* notepad_szClassName = "notepad_window_class";
@@ -200,6 +205,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		SetWindowPos(hEdit, NULL, 0, 0, rcClient.right, rcClient.bottom, SWP_NOZORDER);
 	}
 	break;
+	case WM_GETMINMAXINFO:
+	{
+		MINMAXINFO* mmi = (MINMAXINFO*)lParam;
+		mmi->ptMinTrackSize.x = MINIMUM_WINDOW_WIDTH;
+		mmi->ptMinTrackSize.y = MINIMUM_WINDOW_HEIGHT;
+	}
+	break;
 	case WM_CLOSE:
 		if (SendMessage(GetDlgItem(hwnd, IDC_MAIN_EDIT), EM_GETMODIFY, (WPARAM)0, (LPARAM)0)) {
 			if (MessageBox(hwnd, "Quit without saving?", "Unsaved Changes", MB_OKCANCEL | MB_ICONEXCLAMATION) == IDOK) DestroyWindow(hwnd);
@@ -242,7 +254,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, char* lpCmdLine,
 		notepad_szClassName,
 		"Simple Notepad",
 		WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT, CW_USEDEFAULT, 320, 240,
+		CW_USEDEFAULT, CW_USEDEFAULT, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT,
 		NULL, NULL, hInstance, NULL);
 	
 	if (hwnd == NULL) {
