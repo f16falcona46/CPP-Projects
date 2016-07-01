@@ -12,7 +12,7 @@
 #define ID_FILE_SAVE_AS 9003
 #define ID_FILE_EXIT 9004
 
-#define ID_HELP_ABOUT 9011
+#define ID_HELP_ABOUT 9021
 
 #define IDD_ABOUT 102
 

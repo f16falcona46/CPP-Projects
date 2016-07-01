@@ -1,4 +1,5 @@
 #include <windows.h>
+#include <Windowsx.h>
 #include "resource.h"
 
 #define IDC_MAIN_EDIT 51
@@ -185,7 +186,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	}
 	break;
 	case WM_CLOSE:
-		DestroyWindow(hwnd);
+		if (Edit_GetModify(GetDlgItem(hwnd, IDC_MAIN_EDIT)) == TRUE) {
+			if (MessageBox(hwnd, "Quit without saving?", "Unsaved Changes", MB_OKCANCEL | MB_ICONEXCLAMATION) == IDOK) DestroyWindow(hwnd);
+			else break;
+		}
+		else DestroyWindow(hwnd);
 	break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
