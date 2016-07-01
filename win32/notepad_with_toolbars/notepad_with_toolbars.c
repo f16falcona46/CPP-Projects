@@ -28,6 +28,18 @@ void UpdateStatusBar(HWND hwnd) {
 		SendMessage(GetDlgItem(hwnd, IDC_MAIN_STATUSBAR), SB_SETTEXT, 0, (LPARAM)"Unmodified");
 }
 
+void updateTitleText(HWND hwnd) {
+	if (lstrcmp(g_szOpenFilename, "")) {
+		char szTitleText[MAX_PATH + 25]; //24, but an extra one to be safe.
+		lstrcpy(szTitleText, g_szOpenFilename);
+		lstrcat(szTitleText, " - Notepad with Toolbars");
+		SetWindowText(hwnd, szTitleText);
+	}
+	else {
+		SetWindowText(hwnd, "[New File] - Notepad with Toolbars");
+	}
+}
+
 BOOL LoadOpenFileName(HWND hwnd, LPSTR pszFilename) {
 	OPENFILENAME ofn;
 	char szFilename[MAX_PATH] = "";
@@ -45,7 +57,10 @@ BOOL LoadOpenFileName(HWND hwnd, LPSTR pszFilename) {
 		if (ptr == NULL) {
 			MessageBox(hwnd, "Couldn't load filename!", "Error!", MB_OK | MB_ICONERROR);
 		}
-		else return TRUE;
+		else {
+			updateTitleText(hwnd);
+			return TRUE;
+		}
 	}
 	else {
 		if (CommDlgExtendedError() != 0) {
@@ -72,7 +87,10 @@ BOOL LoadSaveFileName(HWND hwnd, LPSTR pszFilename) {
 		if (ptr == NULL) {
 			MessageBox(hwnd, "Couldn't load filename!", "Error!", MB_OK | MB_ICONERROR);
 		}
-		else return TRUE;
+		else {
+			updateTitleText(hwnd);
+			return TRUE;
+		}
 	}
 	else {
 		if (CommDlgExtendedError()) {
@@ -153,6 +171,22 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			}
 		}
 		switch (LOWORD(wParam)) {
+			case ID_FILE_NEW:
+				if (SendMessage(GetDlgItem(hwnd, IDC_MAIN_EDIT), EM_GETMODIFY, (WPARAM)0, (LPARAM)0)) {
+					if (MessageBox(hwnd, "Open a new file and lose these changes?", "Unsaved Changes", MB_YESNO | MB_ICONEXCLAMATION) != IDYES) {
+						break;
+					}
+				}
+				if (SetWindowText(GetDlgItem(hwnd, IDC_MAIN_EDIT), "") == TRUE) {
+					g_szOpenFilename[0] = '\0';
+					SendMessage(GetDlgItem(hwnd, IDC_MAIN_EDIT), EM_SETMODIFY, (WPARAM)FALSE, (LPARAM)0);
+					UpdateUndoButton(hwnd);
+					UpdateStatusBar(hwnd);
+				}
+				else {
+					MessageBox(hwnd, "Couldn't make new file!", "Error!", MB_OK | MB_ICONERROR);
+				}
+			break;
 			case ID_FILE_OPEN:
 				if (SendMessage(GetDlgItem(hwnd, IDC_MAIN_EDIT), EM_GETMODIFY, (WPARAM)0, (LPARAM)0)) {
 					if (MessageBox(hwnd, "Open a new file and lose these changes?", "Unsaved Changes", MB_YESNO | MB_ICONEXCLAMATION) != IDYES) {
@@ -260,7 +294,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	break;
 	case WM_CLOSE:
 		if (SendMessage(GetDlgItem(hwnd, IDC_MAIN_EDIT), EM_GETMODIFY, (WPARAM)0, (LPARAM)0)) {
-			if (MessageBox(hwnd, "Quit without saving?", "Unsaved Changes", MB_OKCANCEL | MB_ICONEXCLAMATION) == IDOK) DestroyWindow(hwnd);
+			if (MessageBox(hwnd, "Quit without saving?", "Unsaved Changes", MB_YESNO | MB_ICONEXCLAMATION) == IDYES) DestroyWindow(hwnd);
 			else break;
 		}
 		else DestroyWindow(hwnd);
@@ -300,7 +334,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, char* lpCmdLine,
 	HWND hwnd = CreateWindowEx(
 		WS_EX_CLIENTEDGE,
 		notepad_szClassName,
-		"Notepad with Toolbars",
+		"unconstructed title",
 		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT,
 		NULL, NULL, hInstance, NULL);
@@ -309,6 +343,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, char* lpCmdLine,
 		MessageBox(NULL, "Window Creation Failed!", "Error!", MB_ICONERROR | MB_OK);
 		return 0;
 	}
+	
+	updateTitleText(hwnd);
 	
 	HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(KB_ACCELERATORS));
 	if (hAccelTable == NULL) {
