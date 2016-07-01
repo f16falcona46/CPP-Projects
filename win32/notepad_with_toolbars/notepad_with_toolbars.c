@@ -21,6 +21,13 @@ void UpdateUndoButton(HWND hwnd) {
 		EnableMenuItem(GetMenu(hwnd), ID_EDIT_UNDO, MF_GRAYED);
 }
 
+void UpdateStatusBar(HWND hwnd) {
+	if (SendMessage(GetDlgItem(hwnd, IDC_MAIN_EDIT), EM_GETMODIFY, (WPARAM)0, (LPARAM)0))
+		SendMessage(GetDlgItem(hwnd, IDC_MAIN_STATUSBAR), SB_SETTEXT, 0, (LPARAM)"Modified");
+	else
+		SendMessage(GetDlgItem(hwnd, IDC_MAIN_STATUSBAR), SB_SETTEXT, 0, (LPARAM)"Unmodified");
+}
+
 BOOL LoadOpenFileName(HWND hwnd, LPSTR pszFilename) {
 	OPENFILENAME ofn;
 	char szFilename[MAX_PATH] = "";
@@ -140,13 +147,25 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	switch (msg) {
 	case WM_COMMAND:
 		if ((HWND)lParam == GetDlgItem(hwnd, IDC_MAIN_EDIT)) {
-			if (HIWORD(wParam) == EN_UPDATE) UpdateUndoButton(hwnd);
+			if (HIWORD(wParam) == EN_UPDATE) {
+				UpdateUndoButton(hwnd);
+				UpdateStatusBar(hwnd);
+			}
 		}
 		switch (LOWORD(wParam)) {
 			case ID_FILE_OPEN:
+				if (SendMessage(GetDlgItem(hwnd, IDC_MAIN_EDIT), EM_GETMODIFY, (WPARAM)0, (LPARAM)0)) {
+					if (MessageBox(hwnd, "Open a new file and lose these changes?", "Unsaved Changes", MB_YESNO | MB_ICONEXCLAMATION) != IDYES) {
+						break;
+					}
+				}
 				if (LoadOpenFileName(hwnd, g_szOpenFilename) == TRUE) {
 					if (LoadTextFileIntoEdit(GetDlgItem(hwnd, IDC_MAIN_EDIT), g_szOpenFilename) != TRUE) MessageBox(hwnd, "Couldn't open file!", "Error!", MB_OK | MB_ICONERROR);
-					else UpdateUndoButton(hwnd);
+					else {
+						SendMessage(GetDlgItem(hwnd, IDC_MAIN_EDIT), EM_SETMODIFY, (WPARAM)FALSE, (LPARAM)0);
+						UpdateUndoButton(hwnd);
+						UpdateStatusBar(hwnd);
+					}
 				}
 			break;
 			case ID_FILE_SAVE:
@@ -154,10 +173,19 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 					if (LoadSaveFileName(hwnd, g_szOpenFilename) != TRUE) break;
 				}
 				if (SaveTextToFile(GetDlgItem(hwnd, IDC_MAIN_EDIT), g_szOpenFilename) != TRUE) MessageBox(hwnd, "Couldn't save file!", "Error!", MB_OK | MB_ICONERROR);
+				else {
+					SendMessage(GetDlgItem(hwnd, IDC_MAIN_EDIT), EM_SETMODIFY, (WPARAM)FALSE, (LPARAM)0);
+					UpdateStatusBar(hwnd);
+				}
 			break;
 			case ID_FILE_SAVE_AS:
-				if (LoadSaveFileName(hwnd, g_szOpenFilename) == TRUE)
+				if (LoadSaveFileName(hwnd, g_szOpenFilename) == TRUE) {
 					if (SaveTextToFile(GetDlgItem(hwnd, IDC_MAIN_EDIT), g_szOpenFilename) != TRUE) MessageBox(hwnd, "Couldn't save file!", "Error!", MB_OK | MB_ICONERROR);
+					else {
+						SendMessage(GetDlgItem(hwnd, IDC_MAIN_EDIT), EM_SETMODIFY, (WPARAM)FALSE, (LPARAM)0);
+						UpdateStatusBar(hwnd);
+					}
+				}
 			break;
 			case ID_EDIT_UNDO:
 				SendMessage(GetDlgItem(hwnd, IDC_MAIN_EDIT), EM_UNDO, (WPARAM)0, (LPARAM)0);
@@ -201,7 +229,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			
 			int statuswidths[] = {100, -1};
 			SendMessage(hStatus, SB_SETPARTS, sizeof(statuswidths)/sizeof(int), (LPARAM)statuswidths);
-			SendMessage(hStatus, SB_SETTEXT, 0, (LPARAM)"test");
+			UpdateStatusBar(hwnd);
 		}
 	}
 	break;
