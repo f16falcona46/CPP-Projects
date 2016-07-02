@@ -9,6 +9,7 @@
 
 #define IDC_MAIN_EDIT 51
 #define IDC_MAIN_STATUSBAR 52
+#define IDC_MAIN_TOOLBAR 53
 
 const char* notepad_szClassName = "notepad_window_class";
 
@@ -277,7 +278,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			0, 0, 100, 100, hwnd, (HMENU)IDC_MAIN_EDIT, GetModuleHandle(NULL), NULL);
 		HWND hStatus = CreateWindowEx(0, STATUSCLASSNAME, NULL, WS_CHILD | WS_VISIBLE | SBARS_SIZEGRIP,
 			0, 0, 0, 0, hwnd, (HMENU)IDC_MAIN_STATUSBAR, GetModuleHandle(NULL), NULL);
-		if (hEdit == NULL || hStatus == NULL) {
+		HWND hTool = CreateWindowEx(0, TOOLBARCLASSNAME, NULL, WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, hwnd,
+			(HMENU)IDC_MAIN_TOOLBAR, GetModuleHandle(NULL), NULL);
+		if (hEdit == NULL || hStatus == NULL || hTool == NULL) {
 			MessageBox(hwnd, "Couldn't create controls!", "Error!", MB_OK | MB_ICONERROR);
 		}
 		else {
@@ -288,6 +291,32 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			int statuswidths[] = {100, -1};
 			SendMessage(hStatus, SB_SETPARTS, sizeof(statuswidths)/sizeof(int), (LPARAM)statuswidths);
 			UpdateStatusBar(hwnd);
+			
+			SendMessage(hTool, TB_BUTTONSTRUCTSIZE, (WPARAM)sizeof(TBBUTTON), (LPARAM)0);
+			
+			TBADDBITMAP tbab;
+			tbab.hInst = HINST_COMMCTRL;
+			tbab.nID = IDB_STD_SMALL_COLOR;
+			SendMessage(hTool, TB_ADDBITMAP, 0, (LPARAM)(&tbab));
+			
+			TBBUTTON tbb[3];
+			ZeroMemory(tbb, sizeof(tbb));
+			tbb[0].iBitmap = STD_FILENEW;
+			tbb[0].fsState = TBSTATE_ENABLED;
+			tbb[0].fsStyle = TBSTYLE_BUTTON;
+			tbb[0].idCommand = ID_FILE_NEW;
+
+			tbb[1].iBitmap = STD_FILEOPEN;
+			tbb[1].fsState = TBSTATE_ENABLED;
+			tbb[1].fsStyle = TBSTYLE_BUTTON;
+			tbb[1].idCommand = ID_FILE_OPEN;
+
+			tbb[2].iBitmap = STD_FILESAVE;
+			tbb[2].fsState = TBSTATE_ENABLED;
+			tbb[2].fsStyle = TBSTYLE_BUTTON;
+			tbb[2].idCommand = ID_FILE_SAVE_AS;
+			
+			SendMessage(hTool, TB_ADDBUTTONS, sizeof(tbb)/sizeof(TBBUTTON), (LPARAM)(&tbb));
 		}
 	}
 	break;
@@ -305,8 +334,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		GetWindowRect(hStatusbar, &rcStatusbar);
 		int iStatusbarHeight = rcStatusbar.bottom - rcStatusbar.top;
 		
-		int iEditHeight = rcClient.bottom - iStatusbarHeight;
-		SetWindowPos(hEdit, NULL, 0, 0, rcClient.right, iEditHeight, SWP_NOZORDER);
+		RECT rcToolbar;
+		HWND hToolbar = GetDlgItem(hwnd, IDC_MAIN_TOOLBAR);
+		SendMessage(hToolbar, WM_SIZE, 0, 0);
+		GetWindowRect(hToolbar, &rcToolbar);
+		int iToolbarHeight = rcToolbar.bottom - rcToolbar.top;
+		
+		int iEditHeight = rcClient.bottom - iStatusbarHeight - iToolbarHeight;
+		SetWindowPos(hEdit, NULL, 0, iToolbarHeight, rcClient.right, iEditHeight, SWP_NOZORDER);
 	}
 	break;
 	case WM_GETMINMAXINFO:
