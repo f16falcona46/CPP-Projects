@@ -27,8 +27,8 @@ clean:
 	@rm -f $*.d.tmp
 
 %.o: %.cpp
-	$(CXX) -c $(CXXFLAGS) $*.c -o $*.o
-	$(CXX) -MM $(CXXFLAGS) $*.c > $*.d
+	$(CXX) -c $(CXXFLAGS) $*.cpp -o $*.o
+	$(CXX) -MM $(CXXFLAGS) $*.cpp > $*.d
 	@mv -f $*.d $*.d.tmp
 	@sed -e 's|.*:|$*.o:|' < $*.d.tmp > $*.d
 	@sed -e 's/.*://' -e 's/\\$$//' < $*.d.tmp | fmt -1 | sed -e 's/^ *//' -e 's/$$/:/' >> $*.d
