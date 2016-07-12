@@ -1,7 +1,7 @@
 CC=gcc
 CXX=g++
 LINKS=-lcomctl32 -lm -lpng -lz
-OBJS=resources.o picture_preprocessor.o
+OBJS=resources.o imagefuncs.o picture_preprocessor.o
 FLAGS+=-g -ffast-math
 CFLAGS+=-std=c11
 CXXFLAGS+=-std=c++14

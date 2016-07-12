@@ -166,10 +166,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, char* lpCmdLine,
 	layers.push_back(layer2);
 	ifx::write_image(layers, "test.png");
 	
+	std::vector<Eigen::MatrixXd> layers2 = ifx::readbin("Raw_13.bin", 1024, 1024);
+	ifx::write_image(layers2, "test2.png");
+	return 0;
+	/*
 	MSG msg;
 	while (GetMessage(&msg, NULL, 0, 0) > 0) {
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
-	return msg.wParam;
+	return msg.wParam;*/
 }

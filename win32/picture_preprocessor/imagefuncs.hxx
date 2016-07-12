@@ -9,8 +9,9 @@
 #include <functional>
 #include <algorithm>
 #include <Eigen/Dense>
+#include <png.h>
 namespace ifx {
-std::vector<Eigen::MatrixXd> readbin(const std::string& filename);
+std::vector<Eigen::MatrixXd> readbin(const std::string& filename, int width, int height);
 
 template <typename MatrixType>
 void write_image(const std::vector<MatrixType>& layers, const std::string& filename) {
