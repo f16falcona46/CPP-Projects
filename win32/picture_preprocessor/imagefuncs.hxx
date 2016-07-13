@@ -40,7 +40,7 @@ void write_image(const std::vector<MatrixType>& layers, const std::string& filen
 	for (int y = 0; y < layers[0].cols(); ++y) {
 		std::fill(row.begin(), row.end(), 0);
 		for (int x = 0; x < layers[0].rows(); ++x) {
-			for (int i = 0; i < layers.size(); ++i) {
+			for (typename std::vector<MatrixType>::size_type i = 0; i < layers.size(); ++i) {
 				row[x*3+i] = (png_byte)(((double)(layers[i](x,y)))*255);
 			}
 		}

@@ -149,7 +149,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, char* lpCmdLine,
 	ifx::write_image(layers1, "test.png");
 	
 	std::vector<std::string> filenames = ifx::get_rawfile_filenames(std::string("."));
-	for (int i = 0; i < filenames.size(); ++i) {
+	for (std::vector<std::string>::size_type i = 0; i < filenames.size(); ++i) {
 		std::cout << filenames[i] << std::endl;
 		std::vector<Eigen::MatrixXd> layers = ifx::readbin(filenames[i], 1024, 1024);
 		for (Eigen::MatrixXd& layer : layers) {
@@ -157,6 +157,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, char* lpCmdLine,
 		}
 		ifx::write_image(layers, "test"+std::to_string(i+1)+".png");
 	}
+	
+	ifx::Experiment_Params params;
+	ifx::read_experiment_params("Experiment Parameters.txt", &params);
+	std::cout << params << std::endl;
 	
 	INT_PTR ret = DialogBox(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_SELECTDIRECTORY), NULL, MainDlgProc);
 	if (ret != IDOK) {

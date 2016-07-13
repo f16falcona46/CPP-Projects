@@ -2,6 +2,7 @@
 #define MICROSCOPY_EXPERIMENT_PARAM_STRUCT
 
 #include <string>
+#include <iostream>
 
 namespace ifx {
 struct Experiment_Params {
