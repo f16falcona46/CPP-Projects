@@ -13,10 +13,6 @@
 #define MINIMUM_WINDOW_WIDTH 320
 #define MINIMUM_WINDOW_HEIGHT 240
 
-#define IDC_MAIN_EDIT 51
-#define IDC_MAIN_STATUSBAR 52
-#define IDC_MAIN_TOOLBAR 53
-
 const char* notepad_szClassName = "picturepreprocessor_window_class";
 /*
 //loads a filename from an open file dialog into g_szOpenFilename
@@ -130,10 +126,14 @@ BOOL LoadTextFileIntoEdit(HWND hEdit, LPCSTR pszFilename) {
 	return bSuccess;
 }
 */
-//callback for the About dialog
-INT_PTR CALLBACK AboutDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+//callback for the main dialog
+INT_PTR CALLBACK MainDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	switch (msg) {
 		case WM_INITDIALOG:
+		{
+			HICON hIcon = static_cast<HICON>(LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MYICON), IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR | LR_DEFAULTSIZE));
+			SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
+		}
 		return TRUE;
 		case WM_COMMAND:
 			switch (LOWORD(wParam)) {
@@ -144,6 +144,49 @@ INT_PTR CALLBACK AboutDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 					EndDialog(hwnd, IDCANCEL);
 				break;
 			}
+		break;
+		default:
+		return FALSE;
+	}
+	return TRUE;
+}
+
+static HWND g_hProgressBar = NULL;
+//callback for the progress bar dialog
+INT_PTR CALLBACK ProgressDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+	switch (msg) {
+		case WM_INITDIALOG:
+		{
+			HICON hIcon = static_cast<HICON>(LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MYICON), IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR | LR_DEFAULTSIZE));
+			SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
+			
+			g_hProgressBar = CreateWindowEx(0, PROGRESS_CLASS, "", PBS_SMOOTH | WS_CHILD | WS_VISIBLE, 20, 20, 280, 40, hwnd, NULL, GetModuleHandle(NULL), NULL);
+			SendMessage(g_hProgressBar, PBM_SETRANGE, 0, (LPARAM)(MAKELONG(0,50)));
+			SendMessage(g_hProgressBar, PBM_SETSTEP, (WPARAM)1, 0);
+			SetTimer(hwnd, ID_TIMER_PROGRESSBAR, 200, NULL);
+		}
+		break;
+		case WM_COMMAND:
+			switch (LOWORD(wParam)) {
+				case IDOK:
+					EndDialog(hwnd, IDOK);
+				break;
+				case IDCANCEL:
+					EndDialog(hwnd, IDCANCEL);
+				break;
+			}
+		break;
+		case WM_TIMER:
+		switch (LOWORD(wParam)) {
+			case ID_TIMER_PROGRESSBAR:
+				SendMessage(g_hProgressBar, PBM_STEPIT, 0, 0);
+				if (SendMessage(g_hProgressBar, PBM_GETPOS, 0, 0) == 50) {
+					KillTimer(hwnd, ID_TIMER_PROGRESSBAR);
+					EndDialog(hwnd, IDOK);
+				}
+			break;
+			default: return FALSE;
+		}
 		break;
 		default:
 		return FALSE;
@@ -168,12 +211,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, char* lpCmdLine,
 	
 	std::vector<Eigen::MatrixXd> layers2 = ifx::readbin("Raw_13.bin", 1024, 1024);
 	ifx::write_image(layers2, "test2.png");
-	return 0;
-	/*
-	MSG msg;
-	while (GetMessage(&msg, NULL, 0, 0) > 0) {
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
+	
+	INT_PTR ret = DialogBox(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_SELECTDIRECTORY), NULL, MainDlgProc);
+	if (ret != IDOK) {
+		return -2;
 	}
-	return msg.wParam;*/
+	
+	ret = DialogBox(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_PROCESSPROGRESS), NULL, ProgressDlgProc);
+	if (ret == IDOK) {
+		MessageBox(NULL, "Operation completed successfully.", "Notice", MB_OK | MB_ICONINFORMATION);
+		return 0;
+	}
+	else if (ret == IDCANCEL) {
+		MessageBox(NULL, "Operation canceled.", "Notice", MB_OK | MB_ICONINFORMATION);
+	}
+	else {
+		MessageBox(NULL, "Operation failed to complete.", "Notice", MB_OK | MB_ICONERROR);
+		return -1;
+	}
 }
