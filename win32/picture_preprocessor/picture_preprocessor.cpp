@@ -4,6 +4,8 @@
 #include <future>
 #include <vector>
 #include <string>
+#include <algorithm>
+#include <regex>
 
 #include <Eigen/Dense>
 #include <png.h>
@@ -149,16 +151,27 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, char* lpCmdLine,
 	ifx::write_image(layers1, "test.png");
 	
 	std::vector<std::string> filenames = ifx::get_rawfile_filenames(std::string("."));
+	std::sort(filenames.begin(), filenames.end(), //natural sort technology (2 comes before 30)
+		[](std::string n1, std::string n2) {
+			std::regex rawbin_index (".*Raw_([0-9]+)\\.bin");
+			std::smatch n1match;
+			std::regex_match(n1, n1match, rawbin_index);
+			std::smatch n2match;
+			std::regex_match(n2, n2match, rawbin_index);
+			return std::stoi(n1match[1].str()) < std::stoi(n2match[1].str());
+		});
+	
 	for (std::vector<std::string>::size_type i = 0; i < filenames.size(); ++i) {
 		std::cout << filenames[i] << std::endl;
 		std::vector<Eigen::MatrixXd> layers = ifx::readbin(filenames[i], 1024, 1024);
 		for (Eigen::MatrixXd& layer : layers) {
-			layer = layer/layer.maxCoeff();
+			layer = layer/16383;
 		}
 		ifx::write_image(layers, "test"+std::to_string(i+1)+".png");
 	}
 	
 	ifx::Experiment_Params params;
+	params.calibrationdate = "20130125"; //default calibration date
 	ifx::read_experiment_params("Experiment Parameters.txt", &params);
 	std::cout << params << std::endl;
 	
