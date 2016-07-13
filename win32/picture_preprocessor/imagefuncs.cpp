@@ -15,8 +15,8 @@ std::vector<Eigen::MatrixXd> ifx::readbin(const std::string& filename, int width
 	layers.emplace_back(width, height);
 	for (int y = 0; y < height; ++y) {
 		for (int x = 0; x < width; ++x) {
-			layers[0](x,y) = (double)(buf[y*width+x])/16383;
-			layers[1](x,y) = (double)(buf[y*width+x + width*height])/16383;
+			layers[0](x,y) = (double)(buf[y*width+x]);
+			layers[1](x,y) = (double)(buf[y*width+x + width*height]);
 		}
 	}
 	return layers;

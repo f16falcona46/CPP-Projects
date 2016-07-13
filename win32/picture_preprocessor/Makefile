@@ -1,8 +1,8 @@
 CC=gcc
 CXX=g++
-LINKS=-lcomctl32 -lm -lpng -lz
-OBJS=resources.o imagefuncs.o picture_preprocessor.o
-FLAGS+=-g -ffast-math
+LINKS=-lcomctl32 -lm -lpng -lz -lboost_system -lboost_filesystem
+OBJS=resources.o imagefuncs.o microscopy_funcs.o callbacks.o picture_preprocessor.o
+FLAGS+=-g -ffast-math -Wall
 CFLAGS+=-std=c11
 CXXFLAGS+=-std=c++14
 

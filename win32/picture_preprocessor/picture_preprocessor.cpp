@@ -1,12 +1,18 @@
 #include <windows.h>
 #include <commctrl.h>
 #include <iostream>
+#include <future>
+#include <vector>
+#include <string>
 
 #include <Eigen/Dense>
 #include <png.h>
 
 #include "resource.h"
 #include "imagefuncs.hxx"
+#include "microscopy_structs.hxx"
+#include "microscopy_funcs.hxx"
+#include "callbacks.hxx"
 
 #define DEFAULT_WINDOW_WIDTH 640
 #define DEFAULT_WINDOW_HEIGHT 480
@@ -126,73 +132,6 @@ BOOL LoadTextFileIntoEdit(HWND hEdit, LPCSTR pszFilename) {
 	return bSuccess;
 }
 */
-//callback for the main dialog
-INT_PTR CALLBACK MainDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-	switch (msg) {
-		case WM_INITDIALOG:
-		{
-			HICON hIcon = static_cast<HICON>(LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MYICON), IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR | LR_DEFAULTSIZE));
-			SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
-		}
-		return TRUE;
-		case WM_COMMAND:
-			switch (LOWORD(wParam)) {
-				case IDOK:
-					EndDialog(hwnd, IDOK);
-				break;
-				case IDCANCEL:
-					EndDialog(hwnd, IDCANCEL);
-				break;
-			}
-		break;
-		default:
-		return FALSE;
-	}
-	return TRUE;
-}
-
-static HWND g_hProgressBar = NULL;
-//callback for the progress bar dialog
-INT_PTR CALLBACK ProgressDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-	switch (msg) {
-		case WM_INITDIALOG:
-		{
-			HICON hIcon = static_cast<HICON>(LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MYICON), IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR | LR_DEFAULTSIZE));
-			SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
-			
-			g_hProgressBar = CreateWindowEx(0, PROGRESS_CLASS, "", PBS_SMOOTH | WS_CHILD | WS_VISIBLE, 20, 20, 280, 40, hwnd, NULL, GetModuleHandle(NULL), NULL);
-			SendMessage(g_hProgressBar, PBM_SETRANGE, 0, (LPARAM)(MAKELONG(0,50)));
-			SendMessage(g_hProgressBar, PBM_SETSTEP, (WPARAM)1, 0);
-			SetTimer(hwnd, ID_TIMER_PROGRESSBAR, 200, NULL);
-		}
-		break;
-		case WM_COMMAND:
-			switch (LOWORD(wParam)) {
-				case IDOK:
-					EndDialog(hwnd, IDOK);
-				break;
-				case IDCANCEL:
-					EndDialog(hwnd, IDCANCEL);
-				break;
-			}
-		break;
-		case WM_TIMER:
-		switch (LOWORD(wParam)) {
-			case ID_TIMER_PROGRESSBAR:
-				SendMessage(g_hProgressBar, PBM_STEPIT, 0, 0);
-				if (SendMessage(g_hProgressBar, PBM_GETPOS, 0, 0) == 50) {
-					KillTimer(hwnd, ID_TIMER_PROGRESSBAR);
-					EndDialog(hwnd, IDOK);
-				}
-			break;
-			default: return FALSE;
-		}
-		break;
-		default:
-		return FALSE;
-	}
-	return TRUE;
-}
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, char* lpCmdLine, int nCmdShow) {
 	InitCommonControls();
@@ -204,13 +143,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, char* lpCmdLine,
 	//std::cout << mat.cols() << ' ' << mat.rows() << std::endl;
 	Eigen::MatrixXd layer2 = layer1.transpose();
 	
-	std::vector<Eigen::MatrixXd> layers;
-	layers.push_back(layer1);
-	layers.push_back(layer2);
-	ifx::write_image(layers, "test.png");
+	std::vector<Eigen::MatrixXd> layers1;
+	layers1.push_back(layer1);
+	layers1.push_back(layer2);
+	ifx::write_image(layers1, "test.png");
 	
-	std::vector<Eigen::MatrixXd> layers2 = ifx::readbin("Raw_13.bin", 1024, 1024);
-	ifx::write_image(layers2, "test2.png");
+	std::vector<std::string> filenames = ifx::get_rawfile_filenames(std::string("."));
+	for (int i = 0; i < filenames.size(); ++i) {
+		std::cout << filenames[i] << std::endl;
+		std::vector<Eigen::MatrixXd> layers = ifx::readbin(filenames[i], 1024, 1024);
+		for (Eigen::MatrixXd& layer : layers) {
+			layer = layer/layer.maxCoeff();
+		}
+		ifx::write_image(layers, "test"+std::to_string(i+1)+".png");
+	}
 	
 	INT_PTR ret = DialogBox(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_SELECTDIRECTORY), NULL, MainDlgProc);
 	if (ret != IDOK) {
@@ -224,6 +170,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, char* lpCmdLine,
 	}
 	else if (ret == IDCANCEL) {
 		MessageBox(NULL, "Operation canceled.", "Notice", MB_OK | MB_ICONINFORMATION);
+		return -3;
 	}
 	else {
 		MessageBox(NULL, "Operation failed to complete.", "Notice", MB_OK | MB_ICONERROR);
