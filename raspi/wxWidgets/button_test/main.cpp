@@ -1,7 +1,4 @@
-#include <wx/wx.h>
-#include <wx/gbsizer.h>
-
-#include <memory>
+#include "precompiled_headers.h"
 
 class MainWindow : public wxFrame
 {
@@ -48,16 +45,31 @@ bool ButtonTestApp::OnInit()
 MainWindow::MainWindow(const wxString& title, const wxPoint& pos, const wxSize& size) :
 	wxFrame(NULL, wxID_ANY, title, pos, size)
 {
-	wxGridBagSizer* sizer = new wxGridBagSizer(5, 5);
-	sizer->Add(new wxButton(this, ID_Button1, "Test1!!!", wxDefaultPosition, wxDefaultSize, 0), wxGBPosition(0, 0), wxGBSpan(), wxALL | wxEXPAND);
-	sizer->Add(new wxButton(this, ID_Button2, "Test2!!!", wxDefaultPosition, wxDefaultSize, 0), wxGBPosition(1, 0), wxGBSpan(), wxALL | wxEXPAND);
-	sizer->Add(new wxButton(this, ID_Button3, "Test3!!!", wxDefaultPosition, wxDefaultSize, 0), wxGBPosition(0, 1), wxGBSpan(), wxALL | wxEXPAND);
-	sizer->Add(new wxButton(this, ID_Button4, "Test4!!!", wxDefaultPosition, wxDefaultSize, 0), wxGBPosition(1, 1), wxGBSpan(), wxALL | wxEXPAND);
+	//wxPanel* panel = new wxPanel(this);
+	wxGridBagSizer* sizer = new wxGridBagSizer();
 
-	this->SetSizerAndFit(sizer);
+	sizer->Add(new wxButton(this, ID_Button1, "Test1!!!", wxDefaultPosition, wxDefaultSize, 0), wxGBPosition(0, 0), wxGBSpan(), wxALL | wxEXPAND, 5);
+	sizer->Add(new wxButton(this, ID_Button2, "Test2!!!", wxDefaultPosition, wxDefaultSize, 0), wxGBPosition(0, 1), wxGBSpan(), wxALL | wxEXPAND, 5);
+	sizer->Add(new wxButton(this, ID_Button3, "Test3!!!", wxDefaultPosition, wxDefaultSize, 0), wxGBPosition(1, 0), wxGBSpan(), wxALL | wxEXPAND, 5);
+	sizer->Add(new wxButton(this, ID_Button4, "Test4!!!", wxDefaultPosition, wxDefaultSize, 0), wxGBPosition(1, 1), wxGBSpan(), wxALL | wxALIGN_CENTER, 5);
+
+	sizer->AddGrowableRow(0);
+	sizer->AddGrowableRow(1);
+	sizer->AddGrowableCol(0);
+	sizer->AddGrowableCol(1);
+
+	this->SetSizer(sizer);
 }
 
 void MainWindow::OnButtonClick(wxCommandEvent& event)
 {
-	wxMessageBox("Test text", "Test title", wxOK | wxICON_INFORMATION);
+	std::string text = "Test text, from button ";
+	switch (event.GetId()) {
+	case ID_Button1: text += "1"; break;
+	case ID_Button2: text += "2"; break;
+	case ID_Button3: text += "3"; break;
+	case ID_Button4: text += "4"; break;
+	default: text = "The button is unknown!"; break;
+	}
+	wxMessageBox(text.c_str(), "Test title", wxOK | wxICON_INFORMATION);
 }
