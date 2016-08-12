@@ -1,0 +1,36 @@
+eig-test-cpu-fm-fpu-o.xe
+
+real	1m38.737s
+user	1m38.030s
+sys	0m0.640s
+
+eig-test-cpu-fpu-o.xe
+
+real	1m38.967s
+user	1m38.390s
+sys	0m0.540s
+
+eig-test-fm-fpu-o.xe
+
+real	2m32.123s
+user	2m31.490s
+sys	0m0.620s
+
+eig-test-fm-o.xe
+
+real	3m31.208s
+user	3m30.340s
+sys	0m0.850s
+
+eig-test-o.xe
+
+real	3m29.565s
+user	3m28.780s
+sys	0m0.730s
+
+eig-test.xe
+
+real	168m21.849s
+user	168m19.340s
+sys	0m0.870s
+
