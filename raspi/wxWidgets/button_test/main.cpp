@@ -1,8 +1,5 @@
-#include <wx/wxprec.h>
-
-#ifndef WX_PRECOMP
 #include <wx/wx.h>
-#endif
+#include <wx/gbsizer.h>
 
 #include <memory>
 
@@ -14,8 +11,6 @@ public:
 private:
 	void OnButtonClick(wxCommandEvent& event);
 	
-	wxButton* test_button;
-
 	wxDECLARE_EVENT_TABLE();
 };
 
@@ -27,11 +22,17 @@ public:
 
 enum MainWindowControls
 {
-	ID_Button = 1
+	ID_Button1 = 1,
+	ID_Button2,
+	ID_Button3,
+	ID_Button4
 };
 
 wxBEGIN_EVENT_TABLE(MainWindow, wxFrame)
-	EVT_BUTTON(ID_Button, MainWindow::OnButtonClick)
+	EVT_BUTTON(ID_Button1, MainWindow::OnButtonClick)
+	EVT_BUTTON(ID_Button2, MainWindow::OnButtonClick)
+	EVT_BUTTON(ID_Button3, MainWindow::OnButtonClick)
+	EVT_BUTTON(ID_Button4, MainWindow::OnButtonClick)
 wxEND_EVENT_TABLE()
 
 wxIMPLEMENT_APP(ButtonTestApp);
@@ -45,9 +46,15 @@ bool ButtonTestApp::OnInit()
 }
 
 MainWindow::MainWindow(const wxString& title, const wxPoint& pos, const wxSize& size) :
-	wxFrame(NULL, wxID_ANY, title, pos, size),
-	test_button(new wxButton(this, ID_Button, "Test!!!", wxDefaultPosition, wxDefaultSize, 0))
+	wxFrame(NULL, wxID_ANY, title, pos, size)
 {
+	wxGridBagSizer* sizer = new wxGridBagSizer(5, 5);
+	sizer->Add(new wxButton(this, ID_Button1, "Test1!!!", wxDefaultPosition, wxDefaultSize, 0), wxGBPosition(0, 0), wxGBSpan(), wxALL | wxEXPAND);
+	sizer->Add(new wxButton(this, ID_Button2, "Test2!!!", wxDefaultPosition, wxDefaultSize, 0), wxGBPosition(1, 0), wxGBSpan(), wxALL | wxEXPAND);
+	sizer->Add(new wxButton(this, ID_Button3, "Test3!!!", wxDefaultPosition, wxDefaultSize, 0), wxGBPosition(0, 1), wxGBSpan(), wxALL | wxEXPAND);
+	sizer->Add(new wxButton(this, ID_Button4, "Test4!!!", wxDefaultPosition, wxDefaultSize, 0), wxGBPosition(1, 1), wxGBSpan(), wxALL | wxEXPAND);
+
+	this->SetSizerAndFit(sizer);
 }
 
 void MainWindow::OnButtonClick(wxCommandEvent& event)
