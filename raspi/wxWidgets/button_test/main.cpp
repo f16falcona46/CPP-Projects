@@ -70,12 +70,13 @@ MainWindow::MainWindow(const wxString& title, const wxPoint& pos, const wxSize& 
 	sizer->Add(new wxButton(this, ID_Button4, "Test4!!!", wxDefaultPosition, wxDefaultSize, 0), wxGBPosition(1, 1), wxGBSpan(), wxALL | wxALIGN_CENTER, 5);
 
 	this->counterLabel = new wxStaticText(this, -1, "0");
-	sizer->Add(this->counterLabel, wxGBPosition(0, 2), wxGBSpan(), wxALIGN_CENTER, 5);
-	sizer->Add(new DrawingPanel(this), wxGBPosition(1, 2), wxGBSpan(), wxALIGN_CENTER, 5);
+	sizer->Add(this->counterLabel, wxGBPosition(0, 2), wxGBSpan(), wxALL | wxALIGN_CENTER, 5);
+	sizer->Add(new DrawingPanel(this), wxGBPosition(1, 2), wxGBSpan(), wxALL | wxEXPAND, 5);
 	sizer->AddGrowableRow(0);
 	sizer->AddGrowableRow(1);
 	sizer->AddGrowableCol(0);
 	sizer->AddGrowableCol(1);
+	sizer->AddGrowableCol(2);
 
 	this->SetSizer(sizer);
 	this->sizer = sizer;
@@ -104,12 +105,13 @@ void MainWindow::OnTimerTimeout(wxTimerEvent& event)
 
 DrawingPanel::DrawingPanel(wxWindow* parent) : wxPanel(parent)
 {
-	this->SetSize(100,100);
+	this->SetSize(100, 100);
 	this->SetMinSize(this->GetSize());
 	this->Bind(wxEVT_PAINT, &DrawingPanel::OnPaint, this);
 }
 
 void DrawingPanel::OnPaint(wxPaintEvent& event) {
 	wxPaintDC dc(this);
-	dc.DrawLine(0, 0, 100, 100);
+	wxSize size = this->GetSize();
+	dc.DrawLine(0, 0, size.GetWidth(), size.GetHeight());
 }
