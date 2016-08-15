@@ -1,5 +1,12 @@
 #include "precompiled_headers.h"
 
+class DrawingPanel : public wxPanel
+{
+public:
+	DrawingPanel(wxWindow* parent);
+	void OnPaint(wxPaintEvent& event);
+};
+
 class MainWindow : public wxFrame
 {
 public:
@@ -64,7 +71,7 @@ MainWindow::MainWindow(const wxString& title, const wxPoint& pos, const wxSize& 
 
 	this->counterLabel = new wxStaticText(this, -1, "0");
 	sizer->Add(this->counterLabel, wxGBPosition(0, 2), wxGBSpan(), wxALIGN_CENTER, 5);
-
+	sizer->Add(new DrawingPanel(this), wxGBPosition(1, 2), wxGBSpan(), wxALIGN_CENTER, 5);
 	sizer->AddGrowableRow(0);
 	sizer->AddGrowableRow(1);
 	sizer->AddGrowableCol(0);
@@ -93,4 +100,16 @@ void MainWindow::OnTimerTimeout(wxTimerEvent& event)
 	++this->count;
 	this->counterLabel->SetLabel(std::to_string(this->count));
 	sizer->Layout();
+}
+
+DrawingPanel::DrawingPanel(wxWindow* parent) : wxPanel(parent)
+{
+	this->SetSize(100,100);
+	this->SetMinSize(this->GetSize());
+	this->Bind(wxEVT_PAINT, &DrawingPanel::OnPaint, this);
+}
+
+void DrawingPanel::OnPaint(wxPaintEvent& event) {
+	wxPaintDC dc(this);
+	dc.DrawLine(0, 0, 100, 100);
 }
