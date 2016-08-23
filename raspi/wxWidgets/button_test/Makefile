@@ -1,7 +1,7 @@
 CC=gcc
 CXX=g++
 LINKS:=$(shell wx-config --libs)
-OBJS=main.o
+OBJS=main.o MainWindow.o DrawingPanel.o
 FLAGS+=
 CFLAGS+=-std=c11
 CXXFLAGS+=-std=c++14
@@ -22,6 +22,12 @@ clean:
 
 main.o: precompiled_headers.h.gch main.cpp
 	$(CXX) -c $(FLAGS) $(CXXFLAGS) $(WXCXXFLAGS) main.cpp -o main.o
+
+MainWindow.o: precompiled_headers.h.gch MainWindow.cpp
+	$(CXX) -c $(FLAGS) $(CXXFLAGS) $(WXCXXFLAGS) MainWindow.cpp -o MainWindow.o
+
+DrawingPanel.o: precompiled_headers.h.gch DrawingPanel.cpp
+	$(CXX) -c $(FLAGS) $(CXXFLAGS) $(WXCXXFLAGS) DrawingPanel.cpp -o DrawingPanel.o
 
 #Scott McPeak's code
 #%.o: %.c

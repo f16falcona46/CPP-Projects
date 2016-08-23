@@ -4,5 +4,6 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include "common.h"
 
 #define PRECOMP
