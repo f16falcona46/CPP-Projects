@@ -1,6 +1,6 @@
 CC=gcc
 CXX=g++
-LINKS:=$(shell wx-config --libs)
+LINKS:=$(shell wx-config --libs) -lm
 OBJS=main.o MainWindow.o DrawingPanel.o
 FLAGS+=
 CFLAGS+=-std=c11
@@ -11,7 +11,12 @@ WXCXXFLAGS:= $(shell wx-config --cxxflags --cppflags)
 .PHONY: all clean
 all: button_test
 
-precompiled_headers.h.gch: precompiled_headers.h
+#WHEN ADDING A NEW CLASS
+#ClassName.o: precompiled_headers.h.gch ClassName.cpp ClassName.h
+#	$(CXX) -c $(FLAGS) $(CXXFLAGS) $(WXCXXFLAGS) ClassName.cpp -o ClassName.o
+#Note that each .o file must not only depend on its .cpp file, but also on all .h files it uses
+
+precompiled_headers.h.gch: precompiled_headers.h common.h
 	$(CXX) $(FLAGS) $(CXXFLAGS) $(WXCXXFLAGS) -c precompiled_headers.h -o precompiled_headers.h.gch
 
 button_test: precompiled_headers.h.gch $(OBJS)
@@ -20,13 +25,13 @@ button_test: precompiled_headers.h.gch $(OBJS)
 clean:
 	rm -f *.o button_test *.d *.gch
 
-main.o: precompiled_headers.h.gch main.cpp
+main.o: precompiled_headers.h.gch main.cpp MainWindow.h DrawingPanel.h
 	$(CXX) -c $(FLAGS) $(CXXFLAGS) $(WXCXXFLAGS) main.cpp -o main.o
 
-MainWindow.o: precompiled_headers.h.gch MainWindow.cpp
+MainWindow.o: precompiled_headers.h.gch MainWindow.cpp MainWindow.h
 	$(CXX) -c $(FLAGS) $(CXXFLAGS) $(WXCXXFLAGS) MainWindow.cpp -o MainWindow.o
 
-DrawingPanel.o: precompiled_headers.h.gch DrawingPanel.cpp
+DrawingPanel.o: precompiled_headers.h.gch DrawingPanel.cpp DrawingPanel.h
 	$(CXX) -c $(FLAGS) $(CXXFLAGS) $(WXCXXFLAGS) DrawingPanel.cpp -o DrawingPanel.o
 
 #Scott McPeak's code

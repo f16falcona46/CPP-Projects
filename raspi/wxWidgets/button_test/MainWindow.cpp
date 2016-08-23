@@ -36,6 +36,28 @@ MainWindow::MainWindow(const wxString& title, const wxPoint& pos, const wxSize& 
 	panel->SetSizer(sizer);
 	this->sizer = sizer;
 	timer->Start(1000);
+	
+	const int width = 500;
+	const int height = 500;
+	const double scale = 50;
+	wxBitmap bitmap(width, height);
+	wxMemoryDC dc;
+	dc.SelectObject(bitmap);
+	dc.SetBrush(*wxBLACK_BRUSH);
+	dc.Clear();
+	dc.SetPen(*wxGREEN_PEN);
+	for (int i = 0; i <= width; i += 40) {
+		dc.DrawLine(0, i, width, i);
+		dc.DrawLine(i, 0, i, height);
+	}
+	dc.SetPen(*wxWHITE_PEN);
+	for (int i = 0; i <= width - 5; i += 5) {
+		dc.DrawLine(i, -scale * std::sin(i / scale) + height / 2, i + 5, -scale * std::sin((i + 5) / scale) + height / 2);
+	}
+	dc.SelectObject(wxNullBitmap);
+	wxImage::AddHandler(new wxPNGHandler());
+	-//-local image = bitmap:ConvertToImage()
+	bitmap.SaveFile("garbage.png", wxBITMAP_TYPE_PNG, nullptr);
 }
 
 void MainWindow::OnButtonClick(wxCommandEvent& event)
