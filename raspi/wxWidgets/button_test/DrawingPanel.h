@@ -1,6 +1,8 @@
 #ifndef DRAWINGPANEL_H
 #define DRAWINGPANEL_H
 
+#include "common.h"
+
 class DrawingPanel : public wxPanel
 {
 public:

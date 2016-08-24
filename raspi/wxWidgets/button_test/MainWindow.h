@@ -1,6 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "common.h"
+
 class MainWindow : public wxFrame
 {
 public:

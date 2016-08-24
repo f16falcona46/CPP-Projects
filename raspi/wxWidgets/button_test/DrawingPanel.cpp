@@ -1,4 +1,5 @@
 #include "precompiled_headers.h"
+#include "common.h"
 #include "DrawingPanel.h"
 
 DrawingPanel::DrawingPanel(wxWindow* parent) : wxPanel(parent)

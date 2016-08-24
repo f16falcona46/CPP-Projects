@@ -1,4 +1,5 @@
 #include "precompiled_headers.h"
+#include "common.h"
 #include "MainWindow.h"
 #include "DrawingPanel.h"
 
