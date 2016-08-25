@@ -41,20 +41,3 @@ MainWindow.o: precompiled_headers.h.gch common.h MainWindow.cpp MainWindow.h
 
 DrawingPanel.o: precompiled_headers.h.gch common.h DrawingPanel.cpp DrawingPanel.h
 	$(CXX) -c $(FLAGS) $(CXXFLAGS) $(WXCXXFLAGS) DrawingPanel.cpp -o DrawingPanel.o
-
-#Scott McPeak's code
-#%.o: %.c
-#	$(CC) -c $(FLAGS) $(CFLAGS) $*.c -o $*.o
-#	$(CC) -MM $(FLAGS) $(CFLAGS) $*.c > $*.d
-#	@mv -f $*.d $*.d.tmp
-#	@sed -e 's|.*:|$*.o:|' < $*.d.tmp > $*.d
-#	@sed -e 's/.*://' -e 's/\\$$//' < $*.d.tmp | fmt -1 | sed -e 's/^ *//' -e 's/$$/:/' >> $*.d
-#	@rm -f $*.d.tmp
-
-#%.o: %.cpp
-#	$(CXX) -c $(FLAGS) $(CXXFLAGS) $*.cpp -o $*.o
-#	$(CXX) -MM $(FLAGS) $(CXXFLAGS) $*.cpp > $*.d
-#	@mv -f $*.d $*.d.tmp
-#	@sed -e 's|.*:|$*.o:|' < $*.d.tmp > $*.d
-#	@sed -e 's/.*://' -e 's/\\$$//' < $*.d.tmp | fmt -1 | sed -e 's/^ *//' -e 's/$$/:/' >> $*.d
-#	@rm -f $*.d.tmp
