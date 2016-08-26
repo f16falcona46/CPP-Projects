@@ -8,8 +8,14 @@ CXXFLAGS+=-std=c++14
 WXCXXLFLAGS:=$(shell wx-config --cxxflags --cppflags --libs)
 WXCXXFLAGS:= $(shell wx-config --cxxflags --cppflags)
 
-.PHONY: all clean debug
-all: button_test
+.PHONY: all clean debug all_impl
+
+all:
+	$(eval CFLAGS+= -O2 -DNDEBUG)
+	$(eval CXXFLAGS+= -O2 -DNDEBUG)
+	$(eval export CFLAGS -DNDEBUG)
+	$(eval export CXXFLAGS -DNDEBUG)
+	+$(MAKE) all_impl
 
 #before make debug, MUST make clean first!
 debug:
@@ -17,7 +23,9 @@ debug:
 	$(eval CXXFLAGS+= -g)
 	$(eval export CFLAGS)
 	$(eval export CXXFLAGS)
-	make all
+	+$(MAKE) all_impl
+
+all_impl: button_test
 
 #WHEN ADDING A NEW CLASS
 #ClassName.o: precompiled_headers.h.gch common.h ClassName.cpp ClassName.h
@@ -29,6 +37,7 @@ precompiled_headers.h.gch: precompiled_headers.h
 
 button_test: precompiled_headers.h.gch $(OBJS)
 	$(CXX) $(FLAGS) $(CXXFLAGS) $(WXCXXFLAGS) -o button_test $(OBJS) $(LINKS)
+	strip button_test
 
 clean:
 	rm -f *.o button_test *.d *.gch

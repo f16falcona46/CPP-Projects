@@ -48,8 +48,9 @@ void MainWindow::OnButtonClick(wxCommandEvent& event)
 	case ID_Button2: text += "2"; break;
 	case ID_Button3: text += "3"; break;
 	case ID_Button4: text += "4"; break;
-	default: text = "The button is unknown!"; break;
+	default: wxFAIL_MSG("Event ID unknown!"); break;
 	}
+	wxPrintf("%s\n", text);
 	wxMessageBox(text.c_str(), "Test title", wxOK | wxICON_INFORMATION);
 }
 

@@ -1,7 +1,8 @@
+#include "precompiled_headers.h"
+#include "common.h"
+
 #ifndef DRAWINGPANEL_H
 #define DRAWINGPANEL_H
-
-#include "common.h"
 
 class DrawingPanel : public wxPanel
 {

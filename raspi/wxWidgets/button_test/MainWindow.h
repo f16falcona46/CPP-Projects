@@ -1,7 +1,8 @@
+#include "precompiled_headers.h"
+#include "common.h"
+
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-
-#include "common.h"
 
 class MainWindow : public wxFrame
 {
