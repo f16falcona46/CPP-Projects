@@ -62,7 +62,7 @@ void MainWindow::OnPNGButtonClick(wxCommandEvent& event)
 	wxBitmap bitmap(width, height);
 	wxMemoryDC dc;
 	dc.SelectObject(bitmap);
-	dc.SetBackground(*wxRED_BRUSH);
+	dc.SetBackground(*wxBLACK_BRUSH);
 	dc.Clear();
 	dc.SetPen(*wxGREEN_PEN);
 	for (int i = 0; i <= width; i += 40) {
