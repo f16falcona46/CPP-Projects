@@ -12,5 +12,6 @@ DrawingPanel::DrawingPanel(wxWindow* parent) : wxPanel(parent)
 void DrawingPanel::OnPaint(wxPaintEvent& event) {
 	wxPaintDC dc(this);
 	wxSize size = this->GetSize();
+	this->Refresh();
 	dc.DrawLine(0, 0, size.GetWidth(), size.GetHeight());
 }

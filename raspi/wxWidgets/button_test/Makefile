@@ -7,6 +7,7 @@ CFLAGS+=-std=c11
 CXXFLAGS+=-std=c++14
 WXCXXLFLAGS:=$(shell wx-config --cxxflags --cppflags --libs)
 WXCXXFLAGS:= $(shell wx-config --cxxflags --cppflags)
+EXENAME=button_test
 
 .PHONY: all clean debug all_impl
 
@@ -16,6 +17,7 @@ all:
 	$(eval export CFLAGS -DNDEBUG)
 	$(eval export CXXFLAGS -DNDEBUG)
 	+$(MAKE) all_impl
+	strip $(EXENAME)
 
 #before make debug, MUST make clean first!
 debug:
@@ -25,7 +27,7 @@ debug:
 	$(eval export CXXFLAGS)
 	+$(MAKE) all_impl
 
-all_impl: button_test
+all_impl: $(EXENAME)
 
 #WHEN ADDING A NEW CLASS
 #ClassName.o: precompiled_headers.h.gch common.h ClassName.cpp ClassName.h
@@ -35,12 +37,11 @@ all_impl: button_test
 precompiled_headers.h.gch: precompiled_headers.h
 	$(CXX) $(FLAGS) $(CXXFLAGS) $(WXCXXFLAGS) -c precompiled_headers.h -o precompiled_headers.h.gch
 
-button_test: precompiled_headers.h.gch $(OBJS)
-	$(CXX) $(FLAGS) $(CXXFLAGS) $(WXCXXFLAGS) -o button_test $(OBJS) $(LINKS)
-	strip button_test
+$(EXENAME): precompiled_headers.h.gch $(OBJS)
+	$(CXX) $(FLAGS) $(CXXFLAGS) $(WXCXXFLAGS) -o $(EXENAME) $(OBJS) $(LINKS)
 
 clean:
-	rm -f *.o button_test *.d *.gch
+	rm -f *.o $(EXENAME) *.d *.gch
 
 main.o: precompiled_headers.h.gch common.h main.cpp MainWindow.h DrawingPanel.h
 	$(CXX) -c $(FLAGS) $(CXXFLAGS) $(WXCXXFLAGS) main.cpp -o main.o

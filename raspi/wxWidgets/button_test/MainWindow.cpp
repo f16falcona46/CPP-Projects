@@ -50,7 +50,6 @@ void MainWindow::OnButtonClick(wxCommandEvent& event)
 	case ID_Button4: text += "4"; break;
 	default: wxFAIL_MSG("Event ID unknown!"); break;
 	}
-	wxPrintf("%s\n", text);
 	wxMessageBox(text.c_str(), "Test title", wxOK | wxICON_INFORMATION);
 }
 
@@ -63,7 +62,7 @@ void MainWindow::OnPNGButtonClick(wxCommandEvent& event)
 	wxBitmap bitmap(width, height);
 	wxMemoryDC dc;
 	dc.SelectObject(bitmap);
-	dc.SetBrush(*wxBLACK_BRUSH);
+	dc.SetBackground(*wxRED_BRUSH);
 	dc.Clear();
 	dc.SetPen(*wxGREEN_PEN);
 	for (int i = 0; i <= width; i += 40) {
