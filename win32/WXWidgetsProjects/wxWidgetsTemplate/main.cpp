@@ -1,4 +1,4 @@
-#include "precompiled_headers.h"
+#include <wx/wxprec.h>
 #include "common.h"
 
 class TemplateApp : public wxApp
