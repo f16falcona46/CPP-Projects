@@ -153,9 +153,11 @@
     <Image Include="icons.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="notepad_with_toolbars_old.c" />
+    <ClCompile Include="GBLayoutMgr.c" />
+    <ClCompile Include="notepad_with_toolbars.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="GBLayoutMgr.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
