@@ -1,0 +1,76 @@
+#include <windows.h>
+#include "resource.h"
+
+1 RT_MANIFEST "Application.manifest"
+
+1 VERSIONINFO
+FILEVERSION     0,0,0,1
+PRODUCTVERSION  0,0,0,1
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "040904E4"
+    BEGIN
+      VALUE "CompanyName", "SketchyCo"
+      VALUE "FileDescription", "A notepad with toolbars"
+      VALUE "FileVersion", "0.001"
+      VALUE "InternalName", "notepad_with_toolbars"
+      VALUE "LegalCopyright", "Jason Li"
+      VALUE "OriginalFilename", "notepad_with_toolbars.exe"
+      VALUE "ProductName", "NotepadWithToolbars"
+      VALUE "ProductVersion", "0.001"
+    END
+  END
+
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x409, 1252
+  END
+END
+
+IDI_MYEXEICON ICON "exeicons.ico"
+
+IDI_MYICON ICON "icons.ico"
+
+IDR_MYMENU MENU
+BEGIN
+	POPUP "&File"
+	BEGIN
+		MENUITEM "&New\tCtrl+N", ID_FILE_NEW
+		MENUITEM "&Open...\tCtrl+O", ID_FILE_OPEN
+		MENUITEM "&Save\tCtrl+S", ID_FILE_SAVE
+		MENUITEM "Save &As...\tCtrl+Shift+S", ID_FILE_SAVE_AS
+		MENUITEM "E&xit\tCtrl+W", ID_FILE_EXIT
+	END
+	
+	POPUP "&Edit"
+	BEGIN
+		MENUITEM "&Undo\tCtrl+Z", ID_EDIT_UNDO
+	END
+	
+	POPUP "&Help"
+	BEGIN
+		MENUITEM "&About", ID_HELP_ABOUT
+	END
+END
+
+IDD_ABOUT DIALOG DISCARDABLE  0, 0, 289, 66
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Memes"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON "&Finish viewing memes", IDOK, 174, 18, 100, 14
+    PUSHBUTTON "&I do not like memes", IDCANCEL, 174, 35, 100, 14
+    GROUPBOX "Memes in this box...", IDC_STATIC, 7, 7, 275, 52
+    CTEXT "Here are\r\nsome\r\nmemes.", IDC_STATIC, 16, 18, 144, 33
+END
+
+KB_ACCELERATORS ACCELERATORS
+BEGIN
+	"N", ID_FILE_NEW, CONTROL, VIRTKEY
+	"O", ID_FILE_OPEN, CONTROL, VIRTKEY
+	"S", ID_FILE_SAVE, CONTROL, VIRTKEY
+	"S", ID_FILE_SAVE_AS, CONTROL, SHIFT, VIRTKEY
+	"W", ID_FILE_EXIT, CONTROL, VIRTKEY
+	"Z", ID_EDIT_UNDO, CONTROL, VIRTKEY
+END
