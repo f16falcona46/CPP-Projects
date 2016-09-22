@@ -1,13 +1,16 @@
 #include "JoystickHandler.h"
 #include <exception>
 #include <unistd.h>
+#include <sys/stat.h>
+#include <sys/ioctl.h>
+#include <fcntl.h>
 #include <linux/joystick.h>
 
-JoystickHandler::JoystickHandler() : isSetUp(false)
+JoystickHandler::JoystickHandler() : isSetUp(false), fd(-1)
 {
 }
 
-JoystickHandler::JoystickHandler(const char* joystick) : isSetUp(false)
+JoystickHandler::JoystickHandler(const char* joystick) : isSetUp(false), fd(-1)
 {
 	ChangeJoystick(joystick);
 }
@@ -15,7 +18,7 @@ JoystickHandler::JoystickHandler(const char* joystick) : isSetUp(false)
 JoystickHandler::~JoystickHandler()
 {
 	StopUpdateThread();
-	//TODO: release fd here...
+	if (fd != -1) close(fd);
 }
 
 void JoystickHandler::ChangeJoystick(const char* joystick)
@@ -24,7 +27,20 @@ void JoystickHandler::ChangeJoystick(const char* joystick)
 	std::lock_guard<std::mutex> fd_guard(fd_mutex, std::adopt_lock);
 	std::lock_guard<std::mutex> joystick_guard(joystick_mutex, std::adopt_lock);
 	this->joystick = joystick;
-	//TODO: open fd here
+	if (fd != -1) close(fd);	
+
+	fd = open(joystick, O_RDONLY);
+	if (fd == -1) throw std::runtime_error("Couldn't open joystick.");
+	std::lock_guard<std::mutex> buttons_guard(buttons_mutex);
+	std::lock_guard<std::mutex> axes_guard(axes_mutex);
+	
+	unsigned char num_buttons;
+	ioctl(fd, JSIOCGBUTTONS, &num_buttons);
+	buttons.resize(num_buttons);
+	unsigned char num_axes;
+	ioctl(fd, JSIOCGAXES, &num_axes);
+	axes.resize(num_axes);
+
 	isSetUp = true;
 }
 
@@ -65,7 +81,7 @@ int16_t JoystickHandler::GetAxisState(int axis) const
 
 void JoystickHandler::Update()
 {
-	std::lock_guard<std::mutex> guard(fd_mutex);
+	std::lock_guard<std::mutex> fd_guard(fd_mutex);
 	js_event e;
 	int result = read(fd, &e, sizeof(e));
 	if (result != sizeof(e)) throw std::runtime_error("Reading from joystick failed.");
@@ -90,7 +106,6 @@ void JoystickHandler::StartUpdateThread()
 {
 	if (!isSetUp) throw std::logic_error("JoystickHandler wasn't set up.");
 	runUpdateThread = true;
-	//update stuff here
 	updateThread = std::thread(&JoystickHandler::UpdateLoop, this);
 }
 
