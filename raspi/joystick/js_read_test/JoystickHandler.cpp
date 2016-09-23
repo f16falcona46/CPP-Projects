@@ -27,10 +27,11 @@ void JoystickHandler::ChangeJoystick(const char* joystick)
 	std::lock_guard<std::mutex> fd_guard(fd_mutex, std::adopt_lock);
 	std::lock_guard<std::mutex> joystick_guard(joystick_mutex, std::adopt_lock);
 	this->joystick = joystick;
-	if (fd != -1) close(fd);	
 
-	fd = open(joystick, O_RDONLY);
-	if (fd == -1) throw std::runtime_error("Couldn't open joystick.");
+	int newfd = open(joystick, O_RDONLY);
+	if (newfd == -1) throw std::runtime_error("Couldn't open joystick.");
+	if (fd != -1) close(fd);
+	fd = newfd;
 	std::lock_guard<std::mutex> buttons_guard(buttons_mutex);
 	std::lock_guard<std::mutex> axes_guard(axes_mutex);
 	
