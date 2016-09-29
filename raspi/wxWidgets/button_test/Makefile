@@ -46,7 +46,7 @@ clean:
 main.o: precompiled_headers.h.gch common.h main.cpp MainWindow.h DrawingPanel.h
 	$(CXX) -c $(FLAGS) $(CXXFLAGS) $(WXCXXFLAGS) main.cpp -o main.o
 
-MainWindow.o: precompiled_headers.h.gch common.h MainWindow.cpp MainWindow.h
+MainWindow.o: precompiled_headers.h.gch common.h MainWindow.cpp MainWindow.h DrawingPanel.h
 	$(CXX) -c $(FLAGS) $(CXXFLAGS) $(WXCXXFLAGS) MainWindow.cpp -o MainWindow.o
 
 DrawingPanel.o: precompiled_headers.h.gch common.h DrawingPanel.cpp DrawingPanel.h
