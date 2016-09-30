@@ -35,10 +35,10 @@ void JoystickHandler::ChangeJoystick(const char* joystick)
 	std::lock_guard<std::mutex> buttons_guard(buttons_mutex);
 	std::lock_guard<std::mutex> axes_guard(axes_mutex);
 	
-	unsigned char num_buttons;
+	uint8_t num_buttons;
 	ioctl(fd, JSIOCGBUTTONS, &num_buttons);
 	buttons.resize(num_buttons);
-	unsigned char num_axes;
+	uint8_t num_axes;
 	ioctl(fd, JSIOCGAXES, &num_axes);
 	axes.resize(num_axes);
 
