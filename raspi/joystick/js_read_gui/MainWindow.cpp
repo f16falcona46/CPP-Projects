@@ -22,8 +22,6 @@ MainWindow::MainWindow(const wxString& title, const wxPoint& pos, const wxSize& 
 	sizer->AddGrowableRow(0);
 	sizer->AddGrowableRow(1);
 	sizer->AddGrowableCol(0);
-	sizer->AddGrowableCol(1);
-	sizer->AddGrowableCol(2);
 
 	panel->SetSizer(sizer);
 	this->sizer = sizer;
