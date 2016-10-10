@@ -89,10 +89,12 @@ void JoystickHandler::Update()
 	if ((e.type & ~JS_EVENT_INIT) == JS_EVENT_BUTTON) {
 		std::lock_guard<std::mutex> buttons_guard(buttons_mutex);
 		buttons[e.number] = e.value;
+		this->DoCallbacks();
 	}
 	else if ((e.type & ~JS_EVENT_INIT) == JS_EVENT_AXIS) {
 		std::lock_guard<std::mutex> axes_guard(axes_mutex);
 		axes[e.number] = e.value;
+		this->DoCallbacks();
 	}
 }
 
@@ -100,6 +102,14 @@ void JoystickHandler::UpdateLoop()
 {
 	while (runUpdateThread) {
 		Update();
+	}
+}
+
+void JoystickHandler::DoCallbacks()
+{
+	std::lock_guard<std::mutex> callbacks_guard(callbacks_mutex);
+	for (std::function<void(JoystickHandler*)> callback : this->callbacks) {
+		callback(this);
 	}
 }
 
@@ -114,4 +124,10 @@ void JoystickHandler::StopUpdateThread()
 {
 	runUpdateThread = false;
 	updateThread.join();
+}
+
+void JoystickHandler::AddCallback(const std::function<void(JoystickHandler*)>& callback)
+{
+	std::lock_guard<std::mutex> callbacks_guard(callbacks_mutex);
+	this->callbacks.push_back(callback);
 }

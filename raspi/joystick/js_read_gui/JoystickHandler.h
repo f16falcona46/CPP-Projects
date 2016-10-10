@@ -7,6 +7,7 @@
 #include <string>
 #include <atomic>
 #include <thread>
+#include <functional>
 
 class JoystickHandler {
 public:
@@ -21,9 +22,11 @@ public:
 	int16_t GetAxisState(int axis) const;
 	void StartUpdateThread();
 	void StopUpdateThread();
+	void AddCallback(const std::function<void(JoystickHandler*)>& callback);
 private:
 	void Update();
 	void UpdateLoop();
+	void DoCallbacks();
 
 	std::vector<bool> buttons;
 	mutable std::mutex buttons_mutex;
@@ -36,6 +39,8 @@ private:
 	std::atomic<bool> isSetUp;
 	std::atomic<bool> runUpdateThread;
 	std::thread updateThread;
+	std::vector<std::function<void(JoystickHandler*)>> callbacks;
+	mutable std::mutex callbacks_mutex;
 };
 
 #endif //JOYSTICK_HANDLER_H
