@@ -14,6 +14,7 @@ all:
 	$(eval export CFLAGS)
 	$(eval export CXXFLAGS)
 	+$(MAKE) all_impl
+	strip helloworld
 
 #before make debug, MUST make clean first!
 debug:
@@ -34,7 +35,6 @@ precompiled_headers.h.gch: precompiled_headers.h
 
 helloworld: precompiled_headers.h.gch $(OBJS)
 	$(CXX) $(FLAGS) $(CXXFLAGS) -o helloworld $(OBJS) $(LINKS)
-	strip helloworld
 
 clean:
 	rm -f *.o helloworld *.d *.gch
