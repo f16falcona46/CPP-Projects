@@ -1,4 +1,4 @@
-#include <FL/Fl_Window.H>
+#include <FL/Fl_Double_Window.H>
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Group.H>
 #include <FL/Fl_Button.H>
@@ -10,7 +10,7 @@
 
 int main(int argc, char **argv)
 {
-	Fl_Window* dialog = new Fl_Window(300, 300);
+	Fl_Double_Window* dialog = new Fl_Double_Window(300, 300);
 		ClockPanel* clock = new ClockPanel(0, 0, dialog->w(), dialog->h(), "Clock test");
 	dialog->end();
 	dialog->resizable(clock);
