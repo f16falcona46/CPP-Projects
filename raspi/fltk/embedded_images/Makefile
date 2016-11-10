@@ -48,7 +48,7 @@ else
 	ifneq ($(filter arm%,$(UNAME_M)),)
 		#CCFLAGS += -D ARM
 		OBJCOPY_FORMAT:=$(OBJCOPY_FORMAT)32-little
-		BINARY_ARCH=littlearm
+		BINARY_ARCH=$(UNAME_M)
 	endif
 endif
 
