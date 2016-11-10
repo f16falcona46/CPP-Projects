@@ -45,7 +45,7 @@ else
 		BINARY_ARCH=i386
 		#CCFLAGS += -D IA32
 	endif
-	ifneq ($(filter arm%,$(UNAME_P)),)
+	ifneq ($(filter arm%,$(UNAME_M)),)
 		#CCFLAGS += -D ARM
 		OBJCOPY_FORMAT+=32-little
 		BINARY_ARCH=arm
