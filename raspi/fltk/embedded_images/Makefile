@@ -23,6 +23,7 @@ ifeq ($(OS),Windows_NT)
 			OBJCOPY_FORMAT=pe-i386
 		endif
 	endif
+	EXENAME:=$(EXENAME).exe
 else
 	UNAME_S := $(shell uname -s)
 	ifeq ($(UNAME_S),Linux)
@@ -80,7 +81,7 @@ $(EXENAME): $(OBJS)
 	$(CXX) $(FLAGS) $(CXXFLAGS) -o $(EXENAME) $(OBJS) $(LINKS)
 
 clean:
-	rm -f ./*.o ./$(EXENAME) ./$(EXENAME).exe ./*.d ./*.gch
+	rm -f ./*.o ./$(EXENAME) ./*.d ./*.gch
 
 main.o: main.cpp
 	$(CXX) -c $(FLAGS) $(CXXFLAGS) main.cpp -o main.o
