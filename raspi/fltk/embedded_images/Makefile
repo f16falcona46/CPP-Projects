@@ -36,18 +36,18 @@ else
 	endif
 	UNAME_M := $(shell uname -m)
 	ifeq ($(UNAME_M),x86_64)
-		OBJCOPY_FORMAT+=64-x86-64
+		OBJCOPY_FORMAT:=$(OBJCOPY_FORMAT)64-x86-64
 		BINARY_ARCH=i386
 		#CCFLAGS += -D AMD64
 	endif
 	ifneq ($(filter %86,$(UNAME_M)),)
-		OBJCOPY_FORMAT+=32-i386
+		OBJCOPY_FORMAT:=$(OBJCOPY_FORMAT)32-i386
 		BINARY_ARCH=i386
 		#CCFLAGS += -D IA32
 	endif
 	ifneq ($(filter arm%,$(UNAME_M)),)
 		#CCFLAGS += -D ARM
-		OBJCOPY_FORMAT+=32-little
+		OBJCOPY_FORMAT:=$(OBJCOPY_FORMAT)32-little
 		BINARY_ARCH=arm
 	endif
 endif
