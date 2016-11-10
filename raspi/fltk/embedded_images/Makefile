@@ -1,9 +1,9 @@
 CC=gcc
 CXX=g++
 LINKS:=$(shell fltk-config --use-images --ldflags)
-OBJS=main.o BadSmiley.png.o
-RESOURCES=BadSmiley.png
-EXENAME=embedded_image_test.exe
+OBJS=main.o BadSmiley.o
+#RESOURCES=BadSmiley.png blargle.bin
+EXENAME=embedded_image_test
 FLAGS+=
 CXXFLAGS+=-std=c++14 $(shell fltk-config --use-images --cxxflags)
 
@@ -85,17 +85,17 @@ clean:
 main.o: main.cpp
 	$(CXX) -c $(FLAGS) $(CXXFLAGS) main.cpp -o main.o
 
-#BadSmiley.o: BadSmiley.png
-#	objcopy -I binary -O $(OBJCOPY_FORMAT) --binary-architecture $(BINARY_ARCH) BadSmiley.png BadSmiley.o
+BadSmiley.o: BadSmiley.png
+	objcopy -I binary -O $(OBJCOPY_FORMAT) --binary-architecture $(BINARY_ARCH) BadSmiley.png BadSmiley.o
 
-$(RESOURCES).o: $(RESOURCES)
-	@echo Converting $(*)
-	objcopy -I binary -O $(OBJCOPY_FORMAT) -B $(BINARY_ARCH) \
-	--redefine-sym _binary_$*_bin_start=$* \
-	--redefine-sym _binary_$*_bin_end=$*_end \
-	--redefine-sym _binary_$*_bin_size=$*_size_sym \
-	$(*) $(@)
-	@echo "extern const char" $(*)"[];" > $(*).h
-	@echo "extern const char" $(*)_end"[];" >> $(*).h
-	@echo "extern const char" $(*)_size_sym"[];" >> $(*).h
-	@echo "#define $(*)_size ((int)$(*)_size_sym)" >> $(*).h
+#$(RESOURCES).o: $(RESOURCES)
+#	@echo Converting $(*)
+#	objcopy -I binary -O $(OBJCOPY_FORMAT) -B $(BINARY_ARCH) \
+#	--redefine-sym _binary_$*_bin_start=$* \
+#	--redefine-sym _binary_$*_bin_end=$*_end \
+#	--redefine-sym _binary_$*_bin_size=$*_size_sym \
+#	$(*) $(@)
+#	@echo "extern const char" $(*)"[];" > $(*).h
+#	@echo "extern const char" $(*)_end"[];" >> $(*).h
+#	echo "extern const char" $(*)_size_sym"[];" >> $(*).h
+#	@echo "#define $(*)_size ((int)$(*)_size_sym)" >> $(*).h
