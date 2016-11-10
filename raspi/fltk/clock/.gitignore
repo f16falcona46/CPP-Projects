@@ -2,3 +2,4 @@
 *.o
 clock
 .*.swp
+*.exe

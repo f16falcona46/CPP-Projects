@@ -11,7 +11,7 @@ CXXFLAGS+=-std=c++14 $(shell fltk-config --use-images --cxxflags)
 .PHONY: all clean debug all_impl
 
 all:
-	$(eval CXXFLAGS+= -O2)
+	$(eval CXXFLAGS+= -O2 -DNDEBUG)
 	$(eval export CFLAGS)
 	$(eval export CXXFLAGS)
 	+$(MAKE) all_impl
@@ -19,7 +19,7 @@ all:
 
 #before make debug, MUST make clean first!
 debug:
-	$(eval CXXFLAGS+= -g)
+	$(eval CXXFLAGS+= -g -DDEBUG)
 	$(eval export CFLAGS)
 	$(eval export CXXFLAGS)
 	+$(MAKE) all_impl
@@ -35,7 +35,7 @@ $(EXENAME): $(OBJS)
 	$(CXX) $(FLAGS) $(CXXFLAGS) -o $(EXENAME) $(OBJS) $(LINKS)
 
 clean:
-	rm -f *.o $(EXENAME) *.d *.gch
+	rm -f ./*.o ./$(EXENAME) ./$(EXENAME).exe ./*.d ./*.gch
 
 main.o: main.cpp
 	$(CXX) -c $(FLAGS) $(CXXFLAGS) main.cpp -o main.o

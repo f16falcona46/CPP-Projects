@@ -23,6 +23,7 @@ void ClockPanel::UpdateClockCB(void* userdata)
 ClockPanel::ClockPanel(int x, int y, int w, int h, const char* text) : Fl_Box(x, y, w, h, text)
 {
 	this->box(FL_FLAT_BOX);
+	this->update();
 
 	Fl::add_timeout(0.25, UpdateClockCB, this);
 }
@@ -41,7 +42,7 @@ void ClockPanel::draw()
 	fl_font(FL_HELVETICA, 12);
 	fl_draw(ss.str().c_str(), x(), y() + fl_height() - fl_descent());
 	struct std::tm* tm;
-	tm = localtime(&this->current_time);
+	tm = std::localtime(&this->current_time);
 	if (tm == nullptr) throw std::runtime_error("Couldn't extract time.");
 	fl_arc(x(), y(), w(), h(), 0, 360);
 	int hand_length = std::min(w(), h())/2;
