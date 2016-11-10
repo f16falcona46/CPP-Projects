@@ -34,13 +34,13 @@ else
 		OBJCOPY_FORMAT=elf
 		#CCFLAGS += -D OSX
 	endif
-	UNAME_P := $(shell uname -p)
-	ifeq ($(UNAME_P),x86_64)
+	UNAME_M := $(shell uname -m)
+	ifeq ($(UNAME_M),x86_64)
 		OBJCOPY_FORMAT+=64-x86-64
 		BINARY_ARCH=i386
 		#CCFLAGS += -D AMD64
 	endif
-	ifneq ($(filter %86,$(UNAME_P)),)
+	ifneq ($(filter %86,$(UNAME_M)),)
 		OBJCOPY_FORMAT+=32-i386
 		BINARY_ARCH=i386
 		#CCFLAGS += -D IA32
