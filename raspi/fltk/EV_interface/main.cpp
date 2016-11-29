@@ -65,6 +65,12 @@ void Down_Offset_Callback(Fl_Widget* widget, void* data)
 	UpdateDistanceLabels(dists);
 }
 
+void Quit_Callback(Fl_Widget* widget, void* data)
+{
+	Fl_Widget* window = static_cast<Fl_Widget*>(data);
+	window->hide();
+}
+
 int main(int argc, char* argv[])
 {
 	Fl_Window* window = new Fl_Double_Window(318, 216);
@@ -84,7 +90,8 @@ int main(int argc, char* argv[])
 			Fl_Radio_Light_Button* button_hundredths = new Fl_Radio_Light_Button(100, 112, 118, 24, "x0.01");
 			button_tens->setonly();
 		speed_control->end();
-		Fl_Button* button_run = new Fl_Button(110, 160, 98, 51, "Run");
+		Fl_Button* button_run = new Fl_Button(110, 160, 50, 51, "Run");
+		Fl_Button* button_quit = new Fl_Button(165, 160, 43, 51, "Quit");
 		
 		Fl_Repeat_Button* button_offset_up = new Fl_Repeat_Button(228, 0, 90, 80, "@+92<");
 		Fl_Widget* label_offset_desc = new Fl_Box(228, 80, 90, 16, "Lateral Offset");
@@ -109,6 +116,7 @@ int main(int argc, char* argv[])
 	button_dist_down->callback(&Down_Dist_Callback, &dists);
 	button_offset_up->callback(&Up_Offset_Callback, &dists);
 	button_offset_down->callback(&Down_Offset_Callback, &dists);
+	button_quit->callback(&Quit_Callback, window);
 	
 	UpdateDistanceLabels(&dists);
 	
