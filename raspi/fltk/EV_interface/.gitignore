@@ -1,0 +1,6 @@
+*.gch
+*.o
+clock
+.*.swp
+*.exe
+embedded_image_test*
