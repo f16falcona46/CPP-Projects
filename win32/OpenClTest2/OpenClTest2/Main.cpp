@@ -2,14 +2,16 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include <Windows.h>
 #include <vector>
 #include <sstream>
 #include <locale>
 #include <codecvt>
 #include <stdexcept>
+#include <memory>
 #define __CL_ENABLE_EXCEPTIONS
-#include <CL/cl.hpp>	
+#include <CL/cl.hpp>
+#include <png++/png.hpp>
+#include <Windows.h>
 
 /*
 BOOL check_error(cl_int err, const std::wstring& str)
@@ -33,42 +35,19 @@ std::string ReadString(const std::string& file)
 int main()
 {
 	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> utf16conv;
-	/*
-	cl_int err = CL_SUCCESS;
-	std::vector<cl::Platform> platforms;
-	err = cl::Platform::get(&platforms);
-	if (check_error(err, L"getPlatforms()")) std::exit(-1);
-	std::wstringstream ss;
-	for (const cl::Platform& platform : platforms) {
-		std::vector<cl::Device> devices;
-		std::string buf;
-		platform.getInfo(CL_PLATFORM_NAME, &buf);
-		ss << L"\n\nPlatform:" << utf16conv.from_bytes(buf) << L"\n\n";
-		err = platform.getDevices(CL_DEVICE_TYPE_ALL, &devices);
-		if (check_error(err, L"getDevices()")) std::exit(-1);
-		for (const cl::Device& device : devices) {
-			std::string details;
-			std::string device_version;
-			std::string driver_version;
-			err = device.getInfo(CL_DEVICE_NAME, &details);
-			if (check_error(err, L"device.getInfo()")) std::exit(-1);
-			err = device.getInfo(CL_DEVICE_VERSION, &device_version);
-			if (check_error(err, L"device.getInfo()")) std::exit(-1);
-			err = device.getInfo(CL_DRIVER_VERSION, &driver_version);
-			if (check_error(err, L"device.getInfo()")) std::exit(-1);
-			ss << L"Device Name: " << utf16conv.from_bytes(details) << L", Driver version: " << utf16conv.from_bytes(driver_version) << L", Device Version: " << utf16conv.from_bytes(device_version) << L"\n";
+
+	png::image<png::gray_pixel> img("test.png");
+	std::unique_ptr<cl_float[]> in_image(new cl_float[img.get_width() * img.get_height()]);
+	for (size_t i = 0; i < img.get_width(); ++i) {
+		for (size_t j = 0; j < img.get_height(); ++j) {
+			in_image[j * img.get_width() + i] = img.get_pixel(i, j) / 255.0f;
 		}
 	}
-	std::wcout << ss.str();
-	*/
-	cl_float in_image[] = { 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 9.0f, 10.0f, 11.0f, 12.0f, 13.0f, 14.0f, 15.0f, 16.0f };
-	cl_float out_image[4];
-	cl_float filter[] = { 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f };
-	cl_float foo[50000] = { -1.0f };
-	std::cout << "out\n";
-	for (int i = 0; i < 4; ++i) {
-		std::cout << out_image[i] << '\n';
-	}
+	std::unique_ptr<cl_float[]> out_image(new cl_float[(img.get_width() - 2) * (img.get_height() - 2)]);
+	cl_float filter[] =
+		{ -1.0f, -1.0f, -1.0f,
+		-1.0f, 8.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f };
 	try {
 		//set up CL, get device
 		std::vector<cl::Platform> platforms;
@@ -85,10 +64,9 @@ int main()
 		std::vector<cl::Device> devices = ctx.getInfo<CL_CONTEXT_DEVICES>();
 		cl::CommandQueue cqueue(ctx, devices[0]);
 
-		cl::Buffer in_image_buf(ctx, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(cl_float) * 16, in_image);
-		cl::Buffer out_image_buf(ctx, CL_MEM_WRITE_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(cl_float) * 4, out_image);
+		cl::Buffer in_image_buf(ctx, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(cl_float) * img.get_width() * img.get_height(), in_image.get());
+		cl::Buffer out_image_buf(ctx, CL_MEM_WRITE_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(cl_float) * (img.get_width() - 2) * (img.get_height() - 2), out_image.get());
 		cl::Buffer filter_buf(ctx, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(cl_float) * 9, filter);
-		cl::Buffer foo_buf(ctx, CL_MEM_WRITE_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(cl_float) * 50000, foo);
 
 		//get and build program
 		const std::string& kernel_source = ReadString("kernel.cl");
@@ -102,37 +80,24 @@ int main()
 		kernel.setArg(1, filter_buf);
 		kernel.setArg(2, out_image_buf);
 		kernel.setArg(3, 3);
-		kernel.setArg(4, foo_buf);
 		cqueue.finish();
 
 		cl::Event e;
-		cqueue.enqueueNDRangeKernel(kernel, cl::NDRange(), cl::NDRange(2, 2), cl::NDRange(2, 2), 0, &e);
+		cqueue.enqueueNDRangeKernel(kernel, cl::NDRange(), cl::NDRange(img.get_width() - 2, img.get_height() - 2), cl::NDRange(1, 1), 0, &e);
 		e.wait();
 
 		cqueue.finish();
 		
-		cqueue.enqueueReadBuffer(out_image_buf, CL_TRUE, 0, sizeof(cl_float) * 4, out_image);
-		cqueue.enqueueReadBuffer(foo_buf, CL_TRUE, 0, sizeof(cl_float) * 50000, foo);
+		cqueue.enqueueReadBuffer(out_image_buf, CL_TRUE, 0, sizeof(cl_float) * (img.get_width() - 2) * (img.get_height() - 2), out_image.get());
 		cqueue.finish();
-		std::cout << "out\n";
-		for (int i = 0; i < 4; ++i) {
-			std::cout << out_image[i] << '\n';
+		png::image<png::gray_pixel> out(img.get_height() - 2, img.get_width() - 2);
+		for (size_t i = 0; i < img.get_width() - 2; ++i) {
+			for (size_t j = 0; j < img.get_height() - 2; ++j) {
+				//std::cout << out_image[j * (img.get_width() - 2) + i] << '\n';
+				out.set_pixel(i, j, (uint8_t)(255 * out_image[j * (img.get_width() - 2) + i]));
+			}
 		}
-
-		std::cout << "in\n";
-		for (int i = 0; i < 16; ++i) {
-			std::cout << in_image[i] << '\n';
-		}
-
-		std::cout << "filt\n";
-		for (int i = 0; i < 9; ++i) {
-			std::cout << filter[i] << '\n';
-		}
-
-		std::cout << "foo\n";
-		for (int i = 0; i < 50000; ++i) {
-			if (foo[i]) std::cout << i << '=' << foo[i] << '\n';
-		}
+		out.write("out.png");
 
 		std::wcout << L"Press ENTER to continue...";
 		std::wstring dummy;

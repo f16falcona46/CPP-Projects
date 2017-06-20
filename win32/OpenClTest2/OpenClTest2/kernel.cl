@@ -1,4 +1,4 @@
-__kernel void Convolve(const __global float * InImage, __constant float * Filter, __global float * OutImage, const int FilterWidth, __global float * Foo)
+__kernel void Convolve(const __global float * InImage, __constant float * Filter, __global float * OutImage, const int FilterWidth)
 {
 	const int width = get_global_size(0);
 	const int x = get_global_id(0);
@@ -10,7 +10,6 @@ __kernel void Convolve(const __global float * InImage, __constant float * Filter
 		const int y_in_idx = in_width * (y + y_filt);
 		for (int x_filt = 0; x_filt < FilterWidth; ++x_filt) {
 			sum += Filter[x_filt + y_filt_idx] * InImage[x_filt + x + y_in_idx];
-			Foo[(x_filt + y_filt_idx) + 100 * ((x + 1) * 10 + y + 1)] = x_filt + x + y_in_idx;
 		}
 	}
 	OutImage[x + y * width] = sum;
