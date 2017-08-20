@@ -144,7 +144,7 @@ void OCLBlur::GenerateFilter()
 		for (int j = 0; j < m_filt_width; ++j) {
 			int x = j - m_filt_width / 2;
 			int y = i - m_filt_height / 2;
-			filt[i * m_filt_width + j] = std::exp(-std::sqrt(x * x + y * y));
+			filt[i * m_filt_width + j] = std::exp(-std::sqrt((x * x + y * y) / n_elements));
 		}
 	}
 	float sum = std::accumulate(filt.begin(), filt.end(), 0.0f, [](float x, float y) { return x + y; });

@@ -16,17 +16,11 @@ int main()
 		}
 	}
 	try {
-		float image[] = {
-			0, 0, 0, 0,
-			0, 1, 0, 0,
-			0, 0, 0, 0,
-			0, 0, 0, 0
-		};
 		OCLBlur b;
 		b.SetImageWidth(img.get_width());
 		b.SetImageHeight(img.get_height());
 		b.SetImageData(in_image.get());
-		b.SetBlurRadius(50);
+		b.SetBlurRadius(4);
 		std::vector<float> img_out(b.GetOutImageWidth() * b.GetOutImageHeight());
 		b.Execute();
 		b.CopyImage(img_out.data());
