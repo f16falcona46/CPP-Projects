@@ -1,4 +1,4 @@
-#include "OCLBlur.h"
+#include "OCLConvolve.h"
 #include <algorithm>
 #include <vector>
 #include <cmath>
@@ -26,7 +26,7 @@ std::string ReadString(const std::string& file)
 	return ss.str();
 }
 
-OCLBlur::OCLBlur()
+OCLConvolve::OCLConvolve()
 {
 	std::vector<cl::Platform> platforms;
 	cl::Platform::get(&platforms);
@@ -58,11 +58,11 @@ OCLBlur::OCLBlur()
 }
 
 
-OCLBlur::~OCLBlur()
+OCLConvolve::~OCLConvolve()
 {
 }
 
-void OCLBlur::SetImageData(const float * data)
+void OCLConvolve::SetImageData(const float * data)
 {
 	if (!m_img_setup) {
 		m_in_buf = cl::Buffer(m_ctx, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(cl_float) * m_image_width * m_image_height, const_cast<float*>(data));
@@ -75,79 +75,65 @@ void OCLBlur::SetImageData(const float * data)
 	}
 }
 
-void OCLBlur::SetImageWidth(int width)
+void OCLConvolve::SetImageWidth(int width)
 {
 	m_image_width = width;
 	m_img_setup = false;
 }
 
-void OCLBlur::SetImageHeight(int height)
+void OCLConvolve::SetImageHeight(int height)
 {
 	m_image_height = height;
 	m_img_setup = false;
 }
 
-int OCLBlur::GetOutImageWidth() const
+int OCLConvolve::GetOutImageWidth() const
 {
-	return m_image_width - m_filt_width + 1;
+	return m_image_width - m_convkern->GetWidth() + 1;
 }
 
-int OCLBlur::GetOutImageHeight() const
+int OCLConvolve::GetOutImageHeight() const
 {
-	return m_image_height - m_filt_height + 1;
+	return m_image_height - m_convkern->GetHeight() + 1;
 }
 
-void OCLBlur::CopyImage(float * out) const
+void OCLConvolve::CopyImage(float * out) const
 {
-	m_cqueue.enqueueReadBuffer(m_out_buf, CL_TRUE, 0, sizeof(cl_float) * (m_image_width - m_filt_width + 1) * (m_image_height - m_filt_height + 1), out);
+	m_cqueue.enqueueReadBuffer(m_out_buf, CL_TRUE, 0, sizeof(cl_float) * (m_image_width - m_convkern->GetWidth() + 1) * (m_image_height - m_convkern->GetHeight() + 1), out);
 	m_cqueue.finish();
 }
 
-void OCLBlur::Execute()
+void OCLConvolve::Execute()
 {
-	if (!(m_img_setup && m_filt_setup)) throw std::runtime_error("Didn't provide sizes of filter and image.");
+	if (!(m_img_setup)) throw std::runtime_error("Didn't provide sizes of image.");
 	if (!m_out_setup) {
-		m_out_buf = cl::Buffer(m_ctx, CL_MEM_WRITE_ONLY, sizeof(cl_float) * (m_image_width - m_filt_width + 1) * (m_image_height - m_filt_height + 1));
+		m_out_buf = cl::Buffer(m_ctx, CL_MEM_WRITE_ONLY, sizeof(cl_float) * (m_image_width - m_convkern->GetWidth() + 1) * (m_image_height - m_convkern->GetHeight() + 1));
 		m_out_setup = true;
 	}
 	
 	m_kernel.setArg(0, m_in_buf);
-	m_kernel.setArg(1, (cl_uint)(m_image_width - m_filt_width + 1));
-	m_kernel.setArg(2, (cl_uint)(m_image_height - m_filt_height + 1));
-	m_kernel.setArg(3, m_filt_buf);
+	m_kernel.setArg(1, (cl_uint)(m_image_width - m_convkern->GetWidth() + 1));
+	m_kernel.setArg(2, (cl_uint)(m_image_height - m_convkern->GetHeight() + 1));
+	m_kernel.setArg(3, m_convkern->GetBuffer());
 	m_kernel.setArg(4, m_out_buf);
-	m_kernel.setArg(5, (cl_uint)m_filt_width);
-	m_kernel.setArg(6, (cl_uint)m_filt_height);
+	m_kernel.setArg(5, (cl_uint)m_convkern->GetWidth());
+	m_kernel.setArg(6, (cl_uint)m_convkern->GetHeight());
 
 	int num_workitems = m_image_width * m_image_height;
 	cl::Event e;
-	m_cqueue.enqueueNDRangeKernel(m_kernel, cl::NDRange(0, 0), cl::NDRange(RoundToMultiple(m_image_width - m_filt_width + 1, m_lwg_size / 16), RoundToMultiple(m_image_height - m_filt_height + 1, 16)), cl::NDRange(m_lwg_size / 16, 16), nullptr, &e);
+	m_cqueue.enqueueNDRangeKernel(m_kernel, cl::NDRange(0, 0), cl::NDRange(RoundToMultiple(m_image_width - m_convkern->GetWidth() + 1, m_lwg_size / 16), RoundToMultiple(m_image_height - m_convkern->GetHeight() + 1, 16)), cl::NDRange(m_lwg_size / 16, 16), nullptr, &e);
 	e.wait();
 
 	m_cqueue.finish();
 }
 
-void OCLBlur::SetBlurRadius(int r)
+void OCLConvolve::SetConvolutionKernel(const ConvolutionKernel * kernel)
 {
-	m_filt_height = r * 2 - 1;
-	m_filt_width = r * 2 - 1;
-	GenerateFilter();
-	m_filt_setup = true;
+	m_convkern = kernel;
 	m_out_setup = false;
 }
 
-void OCLBlur::GenerateFilter()
+cl::Context OCLConvolve::GetContext() const
 {
-	int n_elements = m_filt_height * m_filt_width;
-	std::vector<float> filt(n_elements);
-	for (int i = 0; i < m_filt_height; ++i) {
-		for (int j = 0; j < m_filt_width; ++j) {
-			int x = j - m_filt_width / 2;
-			int y = i - m_filt_height / 2;
-			filt[i * m_filt_width + j] = std::exp(-std::sqrt((x * x + y * y) / n_elements));
-		}
-	}
-	float sum = std::accumulate(filt.begin(), filt.end(), 0.0f, [](float x, float y) { return x + y; });
-	std::transform(filt.begin(), filt.end(), filt.begin(), [sum](float x) { return x / sum; });
-	m_filt_buf = cl::Buffer(m_ctx, CL_MEM_COPY_HOST_PTR, n_elements * sizeof(float), filt.data());
+	return m_ctx;
 }

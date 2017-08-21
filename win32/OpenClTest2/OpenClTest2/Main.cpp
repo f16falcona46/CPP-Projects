@@ -4,7 +4,8 @@
 #include <png++/png.hpp>
 #include <Windows.h>
 
-#include "OCLBlur.h"
+#include "OCLConvolve.h"
+#include "BlurKernel.h"
 
 int main()
 {
@@ -16,11 +17,13 @@ int main()
 		}
 	}
 	try {
-		OCLBlur b;
+		OCLConvolve b;
+		BlurKernel k(b.GetContext());
+		k.SetRadius(2);
 		b.SetImageWidth(img.get_width());
 		b.SetImageHeight(img.get_height());
 		b.SetImageData(in_image.get());
-		b.SetBlurRadius(4);
+		b.SetConvolutionKernel(&k);
 		std::vector<float> img_out(b.GetOutImageWidth() * b.GetOutImageHeight());
 		b.Execute();
 		b.CopyImage(img_out.data());

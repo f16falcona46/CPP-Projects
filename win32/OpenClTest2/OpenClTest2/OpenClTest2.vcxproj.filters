@@ -15,10 +15,16 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="OCLBlur.cpp">
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="ConvolutionKernel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="OCLConvolve.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BlurKernel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -29,7 +35,13 @@
     </Intel_OpenCL_Build_Rules>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="OCLBlur.h">
+    <ClInclude Include="ConvolutionKernel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OCLConvolve.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BlurKernel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
