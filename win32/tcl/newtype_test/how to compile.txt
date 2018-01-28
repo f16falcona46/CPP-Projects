@@ -1,0 +1,7 @@
+Make sure to use the right Native/Cross Tools Command Prompt for your version of Tcl (32 or 64 bit)
+
+cl /LD newtype_test.cpp /I"C:\ActiveTcl\include" C:\ActiveTcl\lib\tcl86t.lib /o Newtype.dll
+
+For some reason MinGW-w64 doesn't like stubs:
+
+g++ newtype_test.cpp -shared -o Newtype.dll -I"C:\ActiveTcl\include" -L"C:\ActiveTcl\lib" -ltcl86t
