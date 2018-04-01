@@ -13,7 +13,7 @@ void update_cube_state(const GLES_State* state, ObjectState* cube)
 	int x, y;
 	get_mouse(state, &x, &y);
 	cube->angle = ((float) x - (float) state->screen_width / 2.0f)
-		/ (float) state->screen_width * 2.0f;
+		/ (float) state->screen_width * 6.0f;
 	cube->Projection = glm::perspective(glm::radians(45.0f),
 		(float) state->screen_width / (float) state->screen_height,
 		0.1f, 100.0f);
@@ -32,28 +32,24 @@ int main()
 	ObjectState cube;
 	
 	GLESData cubedata;
-	cubedata.num_vertices = 500;
+	cubedata.num_vertices = 5;
 	compile_shaders(&state, &cubedata);
-	init_buffers(&state, &cubedata);
+	init_buffers_cube(&state, &cubedata);
 
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, cubedata.vert_buf);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubedata.vert_idx_buf);
+	glUseProgram(cubedata.program);
 	while (1) {
 		update_cube_state(&state, &cube);
 
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		check();
 		
-		glBindBuffer(GL_ARRAY_BUFFER, cubedata.buf);
-		check();
-		glUseProgram(cubedata.program);
-		check();
 		glUniformMatrix4fv(cubedata.unif_MVP, 1, GL_FALSE, &cube.MVP[0][0]);
-		glDrawArrays(GL_TRIANGLE_FAN, 0, cubedata.num_vertices);
-		check();
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, nullptr);
 
 		glFlush();
 		glFinish();
-		check();
 		eglSwapBuffers(state.display, state.surface);
 		check();
 	}

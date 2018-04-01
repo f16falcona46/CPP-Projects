@@ -2,15 +2,19 @@
 #include "shaders.h"
 
 static const GLchar* vshader_source = 
-	"attribute vec4 vertex;"
+	"attribute vec4 vertex_pos;"
+	"attribute vec4 vertex_color;"
 	"uniform mat4 MVP;"
+	"varying lowp vec4 color;"
 	"void main(void) {"
-	"	gl_Position = MVP * vertex;"
+	"	gl_Position = MVP * vertex_pos;"
+	"	color = vertex_color;"
 	"}";
 
 static const GLchar* fshader_source =
+	"varying lowp vec4 color;"
 	"void main(void) {"
-	"	gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);"
+	"	gl_FragColor = color;"
 	"}";
 
 void compile_shaders(const GLES_State* state, GLESData* data)
@@ -31,11 +35,9 @@ void compile_shaders(const GLES_State* state, GLESData* data)
 	glLinkProgram(data->program);
 	check();
 	
-	data->attr_vertex = glGetAttribLocation(data->program, "vertex");
+	data->attr_vertex_pos = glGetAttribLocation(data->program, "vertex_pos");
+	data->attr_vertex_color = glGetAttribLocation(data->program, "vertex_color");
 	data->unif_MVP = glGetUniformLocation(data->program, "MVP");
-	check();
-
-	glGenBuffers(1, &data->buf);
 	check();
 
 	glViewport(0, 0, state->screen_width, state->screen_height);

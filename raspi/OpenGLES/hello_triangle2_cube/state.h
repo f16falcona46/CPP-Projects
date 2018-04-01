@@ -19,9 +19,11 @@ struct GLESData {
 	GLuint vshader;
 	GLuint fshader;
 	GLuint program;
-	GLint attr_vertex;
+	GLint attr_vertex_pos;
+	GLint attr_vertex_color;
 	GLuint unif_MVP;
-	GLuint buf;
+	GLuint vert_buf;
+	GLuint vert_idx_buf;
 };
 
 #endif //STATE_H

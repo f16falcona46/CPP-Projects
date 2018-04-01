@@ -93,6 +93,7 @@ void init_ogl(GLES_State *state)
       EGL_GREEN_SIZE, 8,
       EGL_BLUE_SIZE, 8,
       EGL_ALPHA_SIZE, 8,
+      EGL_DEPTH_SIZE, 16,
       EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
       EGL_NONE
    };
@@ -169,6 +170,11 @@ void init_ogl(GLES_State *state)
    //enable depth test
    glEnable(GL_DEPTH_TEST);
    glDepthFunc(GL_LESS);
+   check();
+
+   //enable backface culling
+   glEnable(GL_CULL_FACE);
+   glFrontFace(GL_CCW);
    check();
 
    // Set background color and clear buffers
