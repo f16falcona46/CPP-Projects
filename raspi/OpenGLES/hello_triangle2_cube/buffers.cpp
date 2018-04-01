@@ -86,7 +86,6 @@ void init_buffers_cube(const GLES_State* state, GLESData* data)
 	}
 	glBindBuffer(GL_ARRAY_BUFFER, data->vert_buf);
 	glBufferData(GL_ARRAY_BUFFER, data->vertices.size() * sizeof(GLfloat), data->vertices.data(), GL_STATIC_DRAW);
-	printf("%d %d %d\n", data->attr_vertex_pos, data->attr_vertex_color, data->attr_vertex_normal);
 	if (data->attr_vertex_pos >= 0) {
 		glEnableVertexAttribArray(data->attr_vertex_pos);
 		glVertexAttribPointer(data->attr_vertex_pos, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat), (const GLvoid*)0);
