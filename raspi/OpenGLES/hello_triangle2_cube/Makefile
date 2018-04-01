@@ -1,4 +1,4 @@
-OBJS=main.o ogl_utils.o
+OBJS=main.o ogl_utils.o buffers.o shaders.o
 BIN=hello_triangle2.bin
 
 include Makefile.include
