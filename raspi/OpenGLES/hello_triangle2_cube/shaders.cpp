@@ -4,6 +4,7 @@
 static const GLchar* vshader_source = 
 	"attribute vec4 vertex_pos;"
 	"attribute vec4 vertex_color;"
+	"attribute vec4 vertex_normal;"
 	"uniform mat4 MVP;"
 	"varying lowp vec4 color;"
 	"void main(void) {"
@@ -37,6 +38,7 @@ void compile_shaders(const GLES_State* state, GLESData* data)
 	
 	data->attr_vertex_pos = glGetAttribLocation(data->program, "vertex_pos");
 	data->attr_vertex_color = glGetAttribLocation(data->program, "vertex_color");
+	data->attr_vertex_normal = glGetAttribLocation(data->program, "vertex_normal");
 	data->unif_MVP = glGetUniformLocation(data->program, "MVP");
 	check();
 

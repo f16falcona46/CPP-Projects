@@ -72,19 +72,33 @@ void init_buffers_cube(const GLES_State* state, GLESData* data)
 				data->vertices.emplace_back(y);
 				data->vertices.emplace_back(z);
 				data->vertices.emplace_back(1.0f);
-				data->vertices.emplace_back(dist(e));
-				data->vertices.emplace_back(dist(e));
-				data->vertices.emplace_back(dist(e));
+				data->vertices.emplace_back((x + 1.0f) / 2.0f);
+				data->vertices.emplace_back((y + 1.0f) / 2.0f);
+				data->vertices.emplace_back((z + 1.0f) / 2.0f);
 				data->vertices.emplace_back(1.0f);
+				float inv_distance = 1/std::sqrt(x * x + y * y + z * z);
+				data->vertices.emplace_back(x * inv_distance);
+				data->vertices.emplace_back(y * inv_distance);
+				data->vertices.emplace_back(z * inv_distance);
+				data->vertices.emplace_back(0.0f);
 			}
 		}
 	}
 	glBindBuffer(GL_ARRAY_BUFFER, data->vert_buf);
 	glBufferData(GL_ARRAY_BUFFER, data->vertices.size() * sizeof(GLfloat), data->vertices.data(), GL_STATIC_DRAW);
-	glEnableVertexAttribArray(data->attr_vertex_pos);
-	glVertexAttribPointer(data->attr_vertex_pos, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (const GLvoid*)0);
-	glEnableVertexAttribArray(data->attr_vertex_color);
-	glVertexAttribPointer(data->attr_vertex_color, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (const GLvoid*)(4 * sizeof(GLfloat)));
+	printf("%d %d %d\n", data->attr_vertex_pos, data->attr_vertex_color, data->attr_vertex_normal);
+	if (data->attr_vertex_pos >= 0) {
+		glEnableVertexAttribArray(data->attr_vertex_pos);
+		glVertexAttribPointer(data->attr_vertex_pos, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat), (const GLvoid*)0);
+	}
+	if (data->attr_vertex_color >= 0) {
+		glEnableVertexAttribArray(data->attr_vertex_color);
+		glVertexAttribPointer(data->attr_vertex_color, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat), (const GLvoid*)(4 * sizeof(GLfloat)));
+	}
+	if (data->attr_vertex_normal >= 0) {
+		glEnableVertexAttribArray(data->attr_vertex_normal);
+		glVertexAttribPointer(data->attr_vertex_normal, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat), (const GLvoid*)(8 * sizeof(GLfloat)));
+	}
 	check();
 
 	glGenBuffers(1, &data->vert_idx_buf);

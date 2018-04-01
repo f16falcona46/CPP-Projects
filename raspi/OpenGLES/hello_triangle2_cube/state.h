@@ -12,6 +12,8 @@ struct ObjectState {
 	glm::mat4 View;
 	glm::mat4 Projection;
 	glm::mat4 MVP;
+	glm::mat4 MV;
+	glm::vec3 light_position;
 };
 
 struct GLESData {
@@ -22,6 +24,7 @@ struct GLESData {
 	GLuint program;
 	GLint attr_vertex_pos;
 	GLint attr_vertex_color;
+	GLint attr_vertex_normal;
 	GLuint unif_MVP;
 	GLuint vert_buf;
 	GLuint vert_idx_buf;
