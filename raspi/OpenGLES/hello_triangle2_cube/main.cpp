@@ -3,6 +3,7 @@
 #include "state.h"
 #include "shaders.h"
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/transform.hpp>
 #include <vector>
 #include <random>
 #include <chrono>
@@ -11,17 +12,23 @@
 void update_cube_state(const GLES_State* state, ObjectState* cube)
 {
 	int x, y;
+	const float distance = 20.0f;
+	const float scale = 5.0f;
 	get_mouse(state, &x, &y);
-	cube->angle = ((float) x - (float) state->screen_width / 2.0f)
-		/ (float) state->screen_width * 6.0f;
+	cube->angle_x = ((float) x - (float) state->screen_width / 2.0f)
+		/ (float) state->screen_width * scale;
+	cube->angle_y = ((float) y - (float) state->screen_height / 2.0f)
+		/ (float) state->screen_width * scale;
 	cube->Projection = glm::perspective(glm::radians(45.0f),
 		(float) state->screen_width / (float) state->screen_height,
-		0.1f, 100.0f);
+		0.1f, 30.0f);
 	cube->View = glm::lookAt(
-		glm::vec3(5.0f * std::cos(cube->angle), 5.0f * std::sin(cube->angle), 4.0f),
+		glm::vec3(distance * std::cos(cube->angle_x) * std::cos(cube->angle_y),
+			distance * std::sin(cube->angle_x) * std::cos(cube->angle_y),
+			distance * std::sin(cube->angle_y)),
 		glm::vec3(0, 0, 0),
 		glm::vec3(0, 0, 1));
-	cube->Model = glm::mat4(1.0f);
+	cube->Model = glm::scale(glm::vec3(2.0f, 2.0f, 2.0f));
 	cube->MVP = cube->Projection * cube->View * cube->Model;
 }
 

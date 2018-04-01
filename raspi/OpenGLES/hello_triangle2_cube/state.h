@@ -6,7 +6,8 @@
 #include <vector>
 
 struct ObjectState {
-	float angle;
+	float angle_x;
+	float angle_y;
 	glm::mat4 Model;
 	glm::mat4 View;
 	glm::mat4 Projection;
