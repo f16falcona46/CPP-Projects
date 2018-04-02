@@ -9,6 +9,9 @@
 #include <chrono>
 #include <iostream>
 
+#include <signal.h>
+#include <time.h>
+
 void update_cube_state(const GLES_State* state, ObjectState* cube, int x, int y, float x_shift, float y_shift, float z_shift)
 {
 	const float distance = 20.0f;
@@ -57,9 +60,59 @@ int main()
 	glBindBuffer(GL_ARRAY_BUFFER, cubedata.vert_buf);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubedata.vert_idx_buf);
 	glUseProgram(cubedata.program);
+	
+	timer_t tim;
+	int rc;
+	struct sigaction sigact; //why you do this POSIX
+	sigemptyset(&sigact.sa_mask);
+	sigact.sa_flags = 0;
+	//sigact.sa_handler = [](int sig) {std::cout << "Signal " << sig << "received\n";};
+	sigact.sa_handler = SIG_IGN;
+	sigaction(SIGALRM, &sigact, nullptr);
+
+	sigset_t sset;
+	sigemptyset(&sset);
+	sigaddset(&sset, SIGALRM);
+	rc = sigprocmask(SIG_BLOCK, &sset, nullptr);
+	if (rc) {
+		std::cout << "Could not set signal mask.\n";
+		return -1;
+	}
+	
+	rc = timer_create(CLOCK_MONOTONIC, nullptr, &tim);
+	if (rc) {
+		std::cout << "Failed to create timer.\n";
+		return -1;
+	}
+	itimerspec interval;
+	interval.it_interval.tv_sec = 0;
+	interval.it_interval.tv_nsec = 16666666; //60 FPS
+	interval.it_value = interval.it_interval;
+	rc = timer_settime(tim, 0, &interval, nullptr);
+	if (rc) {
+		std::cout << "Could not set timer interval.\n";
+		return -1;
+	}
+
+	int rot_offset = 0;
 	while (1) {
+		int sig;
+		rc = sigwait(&sset, &sig);
+		if (rc) {
+			std::cout << "Waiting for signal failed.\n";
+			return -1;
+		}
+		if (sig != SIGALRM) {
+			continue;
+		}
+
+		rot_offset += 2;
+
 		int mouse_x, mouse_y;
 		get_mouse(&state, &mouse_x, &mouse_y);
+		
+		mouse_x += rot_offset;
+		mouse_y += rot_offset * 2;
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
