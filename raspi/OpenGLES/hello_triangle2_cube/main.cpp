@@ -5,6 +5,7 @@
 #include "update_cube.h"
 
 #include <iostream>
+#include <chrono>
 #include <signal.h>
 #include <time.h>
 
@@ -52,7 +53,7 @@ int main()
 	}
 	itimerspec interval;
 	interval.it_interval.tv_sec = 0;
-	interval.it_interval.tv_nsec = 16666666; //60 FPS
+	interval.it_interval.tv_nsec = 1000000000 / 120; //60 FPS
 	interval.it_value = interval.it_interval;
 	rc = timer_settime(tim, 0, &interval, nullptr);
 	if (rc) {
@@ -61,6 +62,8 @@ int main()
 	}
 
 	int rot_offset = 0;
+	int frames = 0;
+	auto last_fps_update = std::chrono::system_clock::now();
 	while (1) {
 		int sig;
 		rc = sigwait(&sset, &sig);
@@ -73,6 +76,15 @@ int main()
 		}
 
 		rot_offset += 2;
+		++frames;
+		if (frames > 30) {
+			auto cur_time = std::chrono::system_clock::now();
+			auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(cur_time - last_fps_update);
+			float fps = 1000000.0f / (float)elapsed.count() * (float)frames;
+			std::cout << "FPS: " << fps << '\n';
+			last_fps_update = cur_time;
+			frames = 0;
+		}
 
 		int mouse_x, mouse_y;
 		get_mouse(&state, &mouse_x, &mouse_y);
@@ -91,8 +103,6 @@ int main()
 			}
 		}
 
-		glFlush();
-		glFinish();
 		eglSwapBuffers(state.display, state.surface);
 		check();
 	}
