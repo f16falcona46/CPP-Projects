@@ -92,9 +92,9 @@ int main()
 		
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
-		for (float x = -6; x <= 6; x += 3.0) {
-			for (float y = -6; y <= 6; y += 3.0) {
-				for (float z = -6; z <= 6; z += 3.0) {
+		for (float x = -3.0f; x <= 3.0f; x += 1.5f) {
+			for (float y = -3.0f; y <= 3.0f; y += 1.5f) {
+				for (float z = -3.0f; z <= 3.0f; z += 1.5f) {
 					update_cube_model(&state, &cube, rot_offset, rot_offset * 2, x, y, z);
 					compute_MVP(&cube);
 					glUniformMatrix4fv(cubedata.unif_MVP, 1, GL_FALSE, &cube.MVP[0][0]);
@@ -104,7 +104,6 @@ int main()
 		}
 
 		eglSwapBuffers(state.display, state.surface);
-		check();
 	}
 	return 0;
 }
