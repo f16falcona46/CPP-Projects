@@ -20,7 +20,7 @@ struct ObjectState {
 struct GLESData {
 	int num_vertices;
 	std::vector<GLfloat> vertices;
-	std::vector<GLshort> vert_indexes;
+	std::vector<GLushort> vert_indexes;
 	GLuint vshader;
 	GLuint fshader;
 	GLuint program;

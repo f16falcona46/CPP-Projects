@@ -98,7 +98,7 @@ int main()
 					update_cube_model(&state, &cube, rot_offset, rot_offset * 2, x, y, z);
 					compute_MVP(&cube);
 					glUniformMatrix4fv(cubedata.unif_MVP, 1, GL_FALSE, &cube.MVP[0][0]);
-					glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, nullptr);
+					glDrawElements(GL_TRIANGLES, cubedata.vert_indexes.size(), GL_UNSIGNED_SHORT, nullptr);
 				}
 			}
 		}

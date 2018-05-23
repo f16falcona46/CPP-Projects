@@ -5,7 +5,7 @@
 #include <random>
 #include <chrono>
 
-static const GLshort cube_vertex_indices[] = {
+static const GLushort cube_vertex_indices[] = {
 	0, 1, 2,
 	2, 1, 3,
 	3, 1, 7,

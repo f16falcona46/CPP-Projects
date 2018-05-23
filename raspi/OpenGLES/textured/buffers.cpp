@@ -7,7 +7,7 @@
 #include <chrono>
 #include <algorithm>
 
-static const GLshort cube_vertex_indices[] = {
+static const GLushort cube_vertex_indices[] = {
 	0, 1, 2,
 	2, 1, 3,
 	3, 1, 7,
@@ -103,6 +103,6 @@ void init_buffers_cube(const GLES_State* state, GLESData* data)
 	glGenBuffers(1, &data->vert_idx_buf);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, data->vert_idx_buf);
 	
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLshort) * data->vert_indexes.size(), data->vert_indexes.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLushort) * data->vert_indexes.size(), data->vert_indexes.data(), GL_STATIC_DRAW);
 	check();
 }
