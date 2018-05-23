@@ -83,6 +83,7 @@ void init_buffers_cube(const GLES_State* state, GLESData* data)
 		for (int i = 0; i < curMesh.Indices.size(); ++i) {
 			data->vert_indexes.emplace_back(curMesh.Indices[i]);
 		}
+		std::cout << curMesh.Vertices.size() << ' ' << curMesh.Indices.size() << '\n';
 	}
 	glBindBuffer(GL_ARRAY_BUFFER, data->vert_buf);
 	glBufferData(GL_ARRAY_BUFFER, data->vertices.size() * sizeof(GLfloat), data->vertices.data(), GL_STATIC_DRAW);

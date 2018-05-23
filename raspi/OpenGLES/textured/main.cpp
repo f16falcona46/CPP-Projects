@@ -20,6 +20,7 @@ int main()
 	compile_shaders(&state, &cubedata);
 	init_buffers_cube(&state, &cubedata);
 
+	glDisable(GL_CULL_FACE);
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glBindBuffer(GL_ARRAY_BUFFER, cubedata.vert_buf);
