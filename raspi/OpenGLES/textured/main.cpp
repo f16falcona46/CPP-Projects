@@ -104,7 +104,6 @@ int main()
 		}
 		check();
 		eglSwapBuffers(state.display, state.surface);
-		while (1);
 	}
 	return 0;
 }

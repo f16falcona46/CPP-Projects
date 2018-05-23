@@ -7,21 +7,6 @@
 #include <chrono>
 #include <algorithm>
 
-static const GLushort cube_vertex_indices[] = {
-	0, 1, 2,
-	2, 1, 3,
-	3, 1, 7,
-	7, 1, 5,
-	4, 1, 0,
-	4, 5, 1,
-	6, 2, 3,
-	6, 3, 7,
-	6, 7, 5,
-	6, 5, 4,
-	6, 0, 2,
-	4, 0, 6
-};
-
 void init_buffers(const GLES_State* state, GLESData* data)
 {
 	glGenBuffers(1, &data->vert_buf);
@@ -89,15 +74,15 @@ void init_buffers_cube(const GLES_State* state, GLESData* data)
 	glBufferData(GL_ARRAY_BUFFER, data->vertices.size() * sizeof(GLfloat), data->vertices.data(), GL_STATIC_DRAW);
 	if (data->attr_vertex_pos >= 0) {
 		glEnableVertexAttribArray(data->attr_vertex_pos);
-		glVertexAttribPointer(data->attr_vertex_pos, 4, GL_FLOAT, GL_FALSE, 10 * sizeof(GLfloat), (const GLvoid*)0);
+		glVertexAttribPointer(data->attr_vertex_pos, 4, GL_FLOAT, GL_FALSE, 11 * sizeof(GLfloat), (const GLvoid*)0);
 	}
 	if (data->attr_vertex_texcoord >= 0) {
 		glEnableVertexAttribArray(data->attr_vertex_texcoord);
-		glVertexAttribPointer(data->attr_vertex_texcoord, 2, GL_FLOAT, GL_FALSE, 10 * sizeof(GLfloat), (const GLvoid*)(4 * sizeof(GLfloat)));
+		glVertexAttribPointer(data->attr_vertex_texcoord, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(GLfloat), (const GLvoid*)(4 * sizeof(GLfloat)));
 	}
 	if (data->attr_vertex_normal >= 0) {
 		glEnableVertexAttribArray(data->attr_vertex_normal);
-		glVertexAttribPointer(data->attr_vertex_normal, 4, GL_FLOAT, GL_FALSE, 10 * sizeof(GLfloat), (const GLvoid*)(6 * sizeof(GLfloat)));
+		glVertexAttribPointer(data->attr_vertex_normal, 4, GL_FLOAT, GL_FALSE, 11 * sizeof(GLfloat), (const GLvoid*)(7 * sizeof(GLfloat)));
 	}
 	check();
 
