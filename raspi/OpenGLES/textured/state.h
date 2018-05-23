@@ -19,8 +19,8 @@ struct ObjectState {
 
 struct GLESData {
 	int num_vertices;
-	std::vector<GLFloat> vertices;
-	std::vector<GLShort> vert_indexes;
+	std::vector<GLfloat> vertices;
+	std::vector<GLshort> vert_indexes;
 	GLuint vshader;
 	GLuint fshader;
 	GLuint program;
