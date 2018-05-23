@@ -3,7 +3,7 @@
 
 static const GLchar* vshader_source = 
 	"attribute vec4 vertex_pos;"
-	"attribute vec4 vertex_color;"
+	"attribute vec2 vertex_texcoord;"
 	"attribute vec4 vertex_normal;"
 	"uniform mat4 MVP;"
 	"varying lowp vec4 color;"
@@ -37,9 +37,10 @@ void compile_shaders(const GLES_State* state, GLESData* data)
 	check();
 	
 	data->attr_vertex_pos = glGetAttribLocation(data->program, "vertex_pos");
-	data->attr_vertex_texcoord = glGetAttribLocation(data->program, "vertex_color");
+	data->attr_vertex_texcoord = glGetAttribLocation(data->program, "vertex_texcoord");
 	data->attr_vertex_normal = glGetAttribLocation(data->program, "vertex_normal");
 	data->unif_MVP = glGetUniformLocation(data->program, "MVP");
+	std::cout << 
 	check();
 
 	glViewport(0, 0, state->screen_width, state->screen_height);
