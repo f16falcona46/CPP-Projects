@@ -40,7 +40,6 @@ void compile_shaders(const GLES_State* state, GLESData* data)
 	data->attr_vertex_texcoord = glGetAttribLocation(data->program, "vertex_texcoord");
 	data->attr_vertex_normal = glGetAttribLocation(data->program, "vertex_normal");
 	data->unif_MVP = glGetUniformLocation(data->program, "MVP");
-	std::cout << 
 	check();
 
 	glViewport(0, 0, state->screen_width, state->screen_height);
