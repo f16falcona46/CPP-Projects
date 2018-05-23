@@ -9,7 +9,7 @@ static const GLchar* vshader_source =
 	"varying lowp vec4 color;"
 	"void main(void) {"
 	"	gl_Position = MVP * vertex_pos;"
-	"	color = vec4(1.0, 0.0, 0.0, 1.0);"
+	"	color = vec4(1.0f, 0.0f, 0.0f, 1.0f);"
 	"}";
 
 static const GLchar* fshader_source =
