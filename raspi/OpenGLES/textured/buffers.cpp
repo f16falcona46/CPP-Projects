@@ -69,14 +69,14 @@ void init_buffers_cube(const GLES_State* state, GLESData* data)
 		for (int i = 0; i < curMesh.Vertices.size(); ++i) {
 			data->vertices.emplace_back(curMesh.Vertices[i].Position.X);
 			data->vertices.emplace_back(curMesh.Vertices[i].Position.Y);
-			data->vertices.emplace_back(curMesh.Vertices[i].Position.Z)
+			data->vertices.emplace_back(curMesh.Vertices[i].Position.Z);
 			data->vertices.emplace_back(1.0f);
 			data->vertices.emplace_back(curMesh.Vertices[i].TextureCoordinate.X);
 			data->vertices.emplace_back(curMesh.Vertices[i].TextureCoordinate.Y);
 			data->vertices.emplace_back(1.0f);
 			data->vertices.emplace_back(curMesh.Vertices[i].Normal.X);
 			data->vertices.emplace_back(curMesh.Vertices[i].Normal.Y);
-			data->vertices.emplace_back(curMesh.Vertices[i].Normal.Z)
+			data->vertices.emplace_back(curMesh.Vertices[i].Normal.Z);
 			data->vertices.emplace_back(1.0f);
 		}
 		data->vert_indexes.clear();
@@ -103,6 +103,6 @@ void init_buffers_cube(const GLES_State* state, GLESData* data)
 	glGenBuffers(1, &data->vert_idx_buf);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, data->vert_idx_buf);
 	
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLShort) * data->vert_indexes.size(), data->vert_indexes.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLshort) * data->vert_indexes.size(), data->vert_indexes.data(), GL_STATIC_DRAW);
 	check();
 }
