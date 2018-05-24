@@ -6,16 +6,17 @@ static const GLchar* vshader_source =
 	"attribute vec2 vertex_texcoord;"
 	"attribute vec4 vertex_normal;"
 	"uniform mat4 MVP;"
-	"varying lowp vec4 color;"
+	"varying lowp vec2 uv;"
 	"void main(void) {"
 	"	gl_Position = MVP * vertex_pos;"
-	"	color = vec4(1, 0, 0, 0.5);"
+	"	uv = vertex_texcoord;"
 	"}";
 
 static const GLchar* fshader_source =
-	"varying lowp vec4 color;"
+	"uniform sampler2D sampler;"
+	"varying lowp vec2 uv;"
 	"void main(void) {"
-	"	gl_FragColor = color;"
+	"	gl_FragColor = texture2D(sampler, uv);"
 	"}";
 
 void compile_shaders(const GLES_State* state, GLESData* data)
@@ -40,6 +41,7 @@ void compile_shaders(const GLES_State* state, GLESData* data)
 	data->attr_vertex_texcoord = glGetAttribLocation(data->program, "vertex_texcoord");
 	data->attr_vertex_normal = glGetAttribLocation(data->program, "vertex_normal");
 	data->unif_MVP = glGetUniformLocation(data->program, "MVP");
+	data->unif_tex = glGetUniformLocation(data->program, "sampler");
 	check();
 
 	glViewport(0, 0, state->screen_width, state->screen_height);

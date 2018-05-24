@@ -28,8 +28,10 @@ struct GLESData {
 	GLint attr_vertex_texcoord;
 	GLint attr_vertex_normal;
 	GLuint unif_MVP;
+	GLuint unif_tex;
 	GLuint vert_buf;
 	GLuint vert_idx_buf;
+	GLuint ka_tex;
 };
 
 #endif //STATE_H
