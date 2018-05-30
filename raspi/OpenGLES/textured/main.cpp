@@ -25,6 +25,10 @@ int main()
 	glBindBuffer(GL_ARRAY_BUFFER, cubedata.vert_buf);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubedata.vert_idx_buf);
 	glUseProgram(cubedata.program);
+	glm::vec3 light_pos(3.0f, 3.0f, 3.0f);
+	glm::vec3 light_color(40.0f, 40.0f, 40.0f);
+	glUniform3fv(cubedata.unif_light_pos, 1, &light_pos[0]);
+	glUniform3fv(cubedata.unif_light_color, 1, &light_color[0]);
 
 	update_cube_proj(&state, &cube);
 	
@@ -93,7 +97,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		/*
 		update_cube_model(&state, &cube, rot_offset, rot_offset * 2, 0.0f, 0.0f, 0.0f, 4.0f);
-		compute_MVP(&cube);
+		compute_MVP_MV(&cube);
 		glUniformMatrix4fv(cubedata.unif_MVP, 1, GL_FALSE, &cube.MVP[0][0]);
 		glDrawElements(GL_TRIANGLES, cubedata.vert_indexes.size(), GL_UNSIGNED_SHORT, nullptr);
 		*/
@@ -101,8 +105,9 @@ int main()
 			for (float y = -6.0f; y <= 6.0f; y += 4.0f) {
 				for (float z = -6.0f; z <= 6.0f; z += 4.0f) {
 					update_cube_model(&state, &cube, rot_offset, rot_offset * 2, x, y, z, 1.2f);
-					compute_MVP(&cube);
+					compute_MVP_MV(&cube);
 					glUniformMatrix4fv(cubedata.unif_MVP, 1, GL_FALSE, &cube.MVP[0][0]);
+					glUniformMatrix4fv(cubedata.unif_MV, 1, GL_FALSE, &cube.MV[0][0]);
 					glDrawElements(GL_TRIANGLES, cubedata.vert_indexes.size(), GL_UNSIGNED_SHORT, nullptr);
 				}
 			}

@@ -28,6 +28,9 @@ struct GLESData {
 	GLint attr_vertex_texcoord;
 	GLint attr_vertex_normal;
 	GLuint unif_MVP;
+	GLuint unif_MV;
+	GLuint unif_light_pos;
+	GLuint unif_light_color;
 	GLuint unif_tex;
 	GLuint vert_buf;
 	GLuint vert_idx_buf;

@@ -38,7 +38,8 @@ void update_cube_view(const GLES_State* state, ObjectState* cube, int x, int y)
 		glm::vec3(0, 0, 1));
 }
 
-void compute_MVP(ObjectState* cube)
+void compute_MVP_MV(ObjectState* cube)
 {
 	cube->MVP = cube->Projection * cube->View * cube->Model;
+	cube->MV = cube->View * cube->Model;
 }

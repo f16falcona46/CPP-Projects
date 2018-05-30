@@ -7,4 +7,4 @@ void update_cube_model(const GLES_State* state, ObjectState* cube, int x, int y,
 
 void update_cube_view(const GLES_State* state, ObjectState* cube, int x, int y);
 
-void compute_MVP(ObjectState* cube);
+void compute_MVP_MV(ObjectState* cube);
