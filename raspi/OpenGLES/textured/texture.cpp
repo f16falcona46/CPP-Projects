@@ -41,8 +41,10 @@ GLuint create_texture(char const* Filename)
 {
 	std::cout << "Loading from " << Filename << '\n';
 	gli::texture Texture = gli::load(Filename);
-	if(Texture.empty())
+	if(Texture.empty()) {
+		std::cerr << "Empty texture\n";
 		return 0;
+	}
 
 	gli::gl GL(gli::gl::PROFILE_ES20);
 	gli::gl::format const Format = GL.translate(Texture.format(), Texture.swizzles());
