@@ -16,20 +16,23 @@ static void getProgramInfoLog(GLint program)
 	std::cout << log << '\n';
 }
 
+#define PER_VERTEX (1)
+
 #ifdef PER_VERTEX
 static const GLchar* vshader_source = 
 	"attribute vec4 vertex_pos;"
 	"attribute vec2 vertex_texcoord;"
 	"attribute vec4 vertex_normal;"
-	"uniform mat4 MV;"
+	"uniform mat3 NormMat;"
 	"uniform mat4 MVP;"
+	"uniform mat4 MV;"
 	"uniform vec3 light_pos;"
 	"uniform vec3 light_color;"
 	"varying lowp vec2 uv;"
 	"varying lowp vec3 light;"
 	"void main(void) {"
 	"	vec3 mv_vertex = vec3(MV * vertex_pos);"
-	"	vec3 mv_normal = vec3(MV * vertex_normal);"
+	"	vec3 mv_normal = normalize(vec3(MV * vertex_normal));"
 	"	float distance = length(light_pos - mv_vertex);"
 	"	vec3 light_dir = normalize(light_pos - mv_vertex);"
 	"	float diffuse = max(dot(mv_normal, light_dir), 0.1);"
@@ -51,13 +54,14 @@ static const GLchar* vshader_source =
 	"attribute vec4 vertex_pos;"
 	"attribute vec2 vertex_texcoord;"
 	"attribute vec4 vertex_normal;"
-	"uniform mat4 MV;"
 	"uniform mat4 MVP;"
+	"uniform mat4 MV;"
+	"uniform mat3 NormMat;"
 	"varying vec2 uv;"
 	"varying vec3 v_mv_vertex_pos;"
 	"varying vec3 v_mv_vertex_normal;"
 	"void main(void) {"
-	"	v_mv_vertex_normal = vec3(MV * vertex_normal);"
+	"	v_mv_vertex_normal = normalize(vec3(MV * vertex_normal));"
 	"	v_mv_vertex_pos = vec3(MV * vertex_pos);"
 	"	gl_Position = MVP * vertex_pos;"
 	"	uv = vertex_texcoord;"
@@ -106,6 +110,7 @@ void compile_shaders(const GLES_State* state, GLESData* data)
 	data->attr_vertex_normal = glGetAttribLocation(data->program, "vertex_normal");
 	data->unif_MVP = glGetUniformLocation(data->program, "MVP");
 	data->unif_MV = glGetUniformLocation(data->program, "MV");
+	data->unif_NormMat = glGetUniformLocation(data->program, "NormMat");
 	data->unif_light_pos = glGetUniformLocation(data->program, "light_pos");
 	data->unif_light_color = glGetUniformLocation(data->program, "light_color");
 	data->unif_tex = glGetUniformLocation(data->program, "sampler");

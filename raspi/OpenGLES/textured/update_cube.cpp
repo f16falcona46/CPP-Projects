@@ -1,5 +1,6 @@
 #include "update_cube.h"
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtx/transform.hpp>
 
 void update_cube_proj(const GLES_State* state, ObjectState* cube)
@@ -42,4 +43,5 @@ void compute_MVP_MV(ObjectState* cube)
 {
 	cube->MVP = cube->Projection * cube->View * cube->Model;
 	cube->MV = cube->View * cube->Model;
+	cube->NormMat = glm::inverseTranspose(glm::mat3(cube->MV));
 }
