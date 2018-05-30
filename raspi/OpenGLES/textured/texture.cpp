@@ -68,8 +68,8 @@ GLuint create_texture(char const* Filename)
 
 	glTexParameterf(Target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameterf(Target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameterf(Target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameterf(Target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(Target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameterf(Target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	check();
 	return TextureName;
 }
