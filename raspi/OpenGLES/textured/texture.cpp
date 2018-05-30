@@ -1,6 +1,8 @@
 #include "texture.h"
 #include "ogl_utils.h"
 #include <gli/gli.hpp>
+#include <iostream>
+#include <GLES2/gl2ext.h>
 
 /// Filename can be KTX or DDS files
 /*
@@ -17,50 +19,27 @@ GLuint create_texture(char const* Filename)
 	GLuint TextureName = 0;
 	glGenTextures(1, &TextureName);
 	glBindTexture(Target, TextureName);
+	check();
 
 	glm::tvec3<GLsizei> const Extent(Texture.extent());
 	GLsizei const FaceTotal = static_cast<GLsizei>(Texture.layers() * Texture.faces());
 
-	for(std::size_t Layer = 0; Layer < Texture.layers(); ++Layer)
-	for(std::size_t Face = 0; Face < Texture.faces(); ++Face)
-	for(std::size_t Level = 0; Level < Texture.levels(); ++Level)
-	{
-		GLsizei const LayerGL = static_cast<GLsizei>(Layer);
-		glm::tvec3<GLsizei> Extent(Texture.extent(Level));
-		Target = gli::is_target_cube(Texture.target())
-			? static_cast<GLenum>(GL_TEXTURE_CUBE_MAP_POSITIVE_X + Face)
-			: Target;
-
-		switch(Texture.target())
-		{
-		case gli::TARGET_1D_ARRAY:
-		case gli::TARGET_2D:
-		case gli::TARGET_CUBE:
-			if(gli::is_compressed(Texture.format()))
-				glCompressedTexSubImage2D(
-					Target, static_cast<GLint>(Level),
-					0, 0,
-					Extent.x,
-					Texture.target() == gli::TARGET_1D_ARRAY ? LayerGL : Extent.y,
-					Format.Internal, static_cast<GLsizei>(Texture.size(Level)),
-					Texture.data(Layer, Face, Level));
-			else
-				glTexSubImage2D(
-					Target, static_cast<GLint>(Level),
-					0, 0,
-					Extent.x,
-					Texture.target() == gli::TARGET_1D_ARRAY ? LayerGL : Extent.y,
-					Format.External, Format.Type,
-					Texture.data(Layer, Face, Level));
-			break;
-		default: assert(0); break;
-		}
+	if (gli::is_compressed(Texture.format())) {
+		glCompressedTexImage2D(Texture.target(), 0, Format.Internal, Extent.x, Extent.y, 0, static_cast<GLsizei>(Texture.size(0)), Texture.data(0, 0, 0));
 	}
+	else {
+		glTexImage2D(Texture.target(), 0, Format.Internal, Extent.x, Extent.y, 0, static_cast<GLsizei>(Texture.size(0)), Texture.data(0, 0, 0));
+	}
+	std::cout << glGetError() << '\n';
+	check();
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	return TextureName;
-}*/
-
+}
+*/
 GLuint create_texture(char const* Filename)
 {
+	std::cout << "Loading from " << Filename << '\n';
 	gli::texture Texture = gli::load(Filename);
 	if(Texture.empty())
 		return 0;
@@ -68,23 +47,28 @@ GLuint create_texture(char const* Filename)
 	gli::gl GL(gli::gl::PROFILE_ES20);
 	gli::gl::format const Format = GL.translate(Texture.format(), Texture.swizzles());
 	GLenum Target = GL.translate(Texture.target());
-	assert(gli::is_compressed(Texture.format()) && Target == gli::TARGET_2D);
+	assert(Texture.target() == gli::TARGET_2D);
+	assert(gli::is_compressed(Texture.format()));
 
 	GLuint TextureName = 0;
 	glGenTextures(1, &TextureName);
 	check();
 	glBindTexture(Target, TextureName);
 	check();
+	std::cout << "levels: " << Texture.levels() << " layers: " << Texture.layers() << '\n';
 	for(std::size_t Level = 0; Level < Texture.levels(); ++Level)
 	{
 		glm::tvec3<GLsizei> Extent(Texture.extent(Level));
-		glCompressedTexSubImage2D(
-			Target, static_cast<GLint>(Level), 0, 0, Extent.x, Extent.y,
-			Format.Internal, static_cast<GLsizei>(Texture.size(Level)), Texture.data(0, 0, Level));
+		glCompressedTexImage2D(Target, Level, Format.Internal, Extent.x, Extent.y, 0, static_cast<GLsizei>(Texture.size(Level)), Texture.data(0, 0, Level));
 		check();
+		std::cout << Extent.x << ' ' << Extent.y << ' ' << Texture.size(Level) << '\n';
 	}
 
+	glTexParameterf(Target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameterf(Target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameterf(Target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameterf(Target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	check();
 	return TextureName;
 }
-
 

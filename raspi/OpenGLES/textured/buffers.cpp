@@ -62,17 +62,18 @@ void init_buffers_cube(const GLES_State* state, GLESData* data)
 		for (int i = 0; i < curMesh.Indices.size(); ++i) {
 			data->vert_indexes.emplace_back(curMesh.Indices[i]);
 		}
-		data->ka_tex = create_texture(curMesh.MeshMaterial.map_Ka.c_str());
+		data->kd_tex = create_texture(curMesh.MeshMaterial.map_Kd.c_str());
 		check();
 		glActiveTexture(GL_TEXTURE0);
 		check();
-		glBindTexture(GL_TEXTURE_2D, data->ka_tex);
+		glBindTexture(GL_TEXTURE_2D, data->kd_tex);
 		check();
-		std::cout << data->ka_tex << '\n';
+		std::cout << "ka_tex: " << data->kd_tex << '\n';
+		glUseProgram(data->program);
 		glUniform1i(data->unif_tex, 0);
 		check();
-		std::cout << curMesh.Vertices.size() << ' ' << curMesh.Indices.size() << '\n';
-		std::cout << curMesh.MeshMaterial.map_Ka << '\n';
+		std::cout << "verts, idx: " << curMesh.Vertices.size() << ' ' << curMesh.Indices.size() << '\n';
+		std::cout << "map_Kd: " << curMesh.MeshMaterial.map_Kd << '\n';
 	}
 	glGenBuffers(1, &data->vert_buf);
 	check();

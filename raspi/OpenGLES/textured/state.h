@@ -31,7 +31,7 @@ struct GLESData {
 	GLuint unif_tex;
 	GLuint vert_buf;
 	GLuint vert_idx_buf;
-	GLuint ka_tex;
+	GLuint kd_tex;
 };
 
 #endif //STATE_H

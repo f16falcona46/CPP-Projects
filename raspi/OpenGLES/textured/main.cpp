@@ -92,16 +92,22 @@ int main()
 		
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
+		update_cube_model(&state, &cube, rot_offset, rot_offset * 2, 0.0f, 0.0f, 0.0f, 4.0f);
+		compute_MVP(&cube);
+		glUniformMatrix4fv(cubedata.unif_MVP, 1, GL_FALSE, &cube.MVP[0][0]);
+		glDrawElements(GL_TRIANGLES, cubedata.vert_indexes.size(), GL_UNSIGNED_SHORT, nullptr);
+		/*
 		for (float x = -3.0f; x <= 3.0f; x += 1.5f) {
 			for (float y = -3.0f; y <= 3.0f; y += 1.5f) {
 				for (float z = -3.0f; z <= 3.0f; z += 1.5f) {
-					update_cube_model(&state, &cube, rot_offset, rot_offset * 2, x, y, z);
+					update_cube_model(&state, &cube, rot_offset, rot_offset * 2, x, y, z, 0.4f);
 					compute_MVP(&cube);
 					glUniformMatrix4fv(cubedata.unif_MVP, 1, GL_FALSE, &cube.MVP[0][0]);
 					glDrawElements(GL_TRIANGLES, cubedata.vert_indexes.size(), GL_UNSIGNED_SHORT, nullptr);
 				}
 			}
 		}
+		*/
 		check();
 		eglSwapBuffers(state.display, state.surface);
 	}

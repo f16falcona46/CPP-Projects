@@ -9,7 +9,7 @@ void update_cube_proj(const GLES_State* state, ObjectState* cube)
 		0.1f, 70.0f);
 }
 
-void update_cube_model(const GLES_State* state, ObjectState* cube, int x, int y, float x_shift, float y_shift, float z_shift)
+void update_cube_model(const GLES_State* state, ObjectState* cube, int x, int y, float x_shift, float y_shift, float z_shift, float size)
 {
 	const float scale = 5.0f;
 	cube->angle_x = ((float) x - (float) state->screen_width / 2.0f)
@@ -19,7 +19,7 @@ void update_cube_model(const GLES_State* state, ObjectState* cube, int x, int y,
 	cube->Model = glm::translate(glm::vec3(x_shift, y_shift, z_shift));
 	cube->Model = glm::rotate(cube->Model, cube->angle_x, glm::vec3(0.0f, 0.0f, 1.0f));
 	cube->Model = glm::rotate(cube->Model, cube->angle_y, glm::vec3(1.0f, 0.0f, 0.0f));
-	cube->Model = glm::scale(cube->Model, glm::vec3(0.4f, 0.4f, 0.4f));
+	cube->Model = glm::scale(cube->Model, glm::vec3(size, size, size));
 }
 
 void update_cube_view(const GLES_State* state, ObjectState* cube, int x, int y)
