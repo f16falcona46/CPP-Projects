@@ -117,14 +117,14 @@ int main()
 			for (float y = -6.0f; y <= 6.0f; y += 3.0f) {
 				for (float z = -6.0f; z <= 6.0f; z += 3.0f) {
 					if (std::abs(y) < 0.1f && (std::abs(z) < 0.1f || std::abs(z - 3.0f) < 0.1f)) { 
-						glm::vec3 light_color(100.0f, 0.0f, 0.0f);
+						glm::vec3 light_color(50.0f, 0.0f, 0.0f);
 						glUniform3fv(cubedata.unif_light_color, 1, &light_color[0]);
 					}
 					else {
-						glm::vec3 light_color(100.0f, 100.0f, 100.0f);
+						glm::vec3 light_color(50.0f, 50.0f, 50.0f);
 						glUniform3fv(cubedata.unif_light_color, 1, &light_color[0]);
 					}
-					update_cube_model(&state, &cube, rot_offset, rot_offset * 2, x, y, z, 1.4f);
+					update_cube_model(&state, &cube, rot_offset, rot_offset * 2, x, y, z, 0.8f);
 					compute_MVP_MV(&cube);
 					glUniformMatrix4fv(cubedata.unif_MVP, 1, GL_FALSE, &cube.MVP[0][0]);
 					glUniformMatrix4fv(cubedata.unif_MV, 1, GL_FALSE, &cube.MV[0][0]);
