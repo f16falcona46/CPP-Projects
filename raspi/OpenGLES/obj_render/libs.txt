@@ -1,0 +1,3 @@
+libgli-dev
+libglm-dev
+OBJ-Loader
