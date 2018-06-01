@@ -50,6 +50,38 @@ static const GLchar* fshader_source =
 	"	gl_FragColor = texture2D(sampler, uv) * vec4(light, 1.0);"
 	"}";
 #else
+#ifdef NO_TEXTURE
+static const GLchar* vshader_source = 
+	"attribute vec4 vertex_pos;"
+	"attribute vec2 vertex_texcoord;"
+	"attribute vec4 vertex_normal;"
+	"uniform mat3 NormMat;"
+	"uniform mat4 MVP;"
+	"uniform mat4 MV;"
+	"uniform vec3 light_pos;"
+	"uniform vec3 light_color;"
+	"varying lowp vec2 uv;"
+	"varying lowp vec3 light;"
+	"void main(void) {"
+	"	vec3 mv_vertex = vec3(MV * vertex_pos);"
+	"	vec3 mv_normal = normalize(vec3(MV * vertex_normal));"
+	"	float distance = length(light_pos - mv_vertex);"
+	"	vec3 light_dir = normalize(light_pos - mv_vertex);"
+	"	float diffuse = max(dot(mv_normal, light_dir), 0.1);"
+	"	diffuse = diffuse * (1.0 / (1.0 + (0.25 * distance * distance)));"
+	"	light = light_color * diffuse;"
+	"	gl_Position = MVP * vertex_pos;"
+	"	uv = vertex_texcoord;"
+	"}";
+
+static const GLchar* fshader_source =
+	"uniform sampler2D sampler;"
+	"varying lowp vec2 uv;"
+	"varying lowp vec3 light;"
+	"void main(void) {"
+	"	gl_FragColor = vec4(light, 1.0);"
+	"}";
+#else
 static const GLchar* vshader_source = 
 	"attribute vec4 vertex_pos;"
 	"attribute vec2 vertex_texcoord;"
@@ -81,6 +113,7 @@ static const GLchar* fshader_source =
 	"	diffuse = diffuse * (1.0 / (1.0 + (0.25 * distance * distance)));"
 	"	gl_FragColor = texture2D(sampler, uv) * vec4(light_color * diffuse, 1.0);"
 	"}";
+#endif //FLAT
 #endif //PER_VERTEX
 
 void compile_shaders(const GLES_State* state, GLESData* data)

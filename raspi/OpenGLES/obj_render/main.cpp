@@ -10,23 +10,26 @@
 #include <time.h>
 #include <vector>
 
-int main()
+int main(int argc, char* argv[])
 {
 	GLES_State state;
 	init_ogl(&state);
 	ObjectState cube;
 	
 	GLESData cubedata;
-	cubedata.num_vertices = 5;
 	compile_shaders(&state, &cubedata);
 	
 	std::vector<Mesh> meshes;
-	load_obj(&cubedata, &meshes, "White.obj");
+	if (argc > 1) {
+		load_obj(&cubedata, &meshes, argv[1]);
+	}
+	else {
+		load_obj(&cubedata, &meshes, "White.obj");
+	}
+	std::cout << "Number of meshes: " << meshes.size() << '\n';
 
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClearColor(0.4f, 0.4f, 0.6f, 1.0f);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glBindBuffer(GL_ARRAY_BUFFER, cubedata.vert_buf);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubedata.vert_idx_buf);
 	glUseProgram(cubedata.program);
 
 	update_cube_proj(&state, &cube);
@@ -47,7 +50,8 @@ int main()
 			last_fps_update = cur_time;
 			frames = 0;
 		}
-
+		
+		rot_offset = 0;
 		int mouse_x, mouse_y;
 		get_mouse(&state, &mouse_x, &mouse_y);
 		
@@ -55,10 +59,10 @@ int main()
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
-		glm::vec4 light_pos(16.0f, 0.0f, 0.0f, 1.0f);
+		glm::vec4 light_pos(32.0f, 0.0f, 0.0f, 1.0f);
 		light_pos = cube.View * light_pos;
 		glUniform3fv(cubedata.unif_light_pos, 1, &light_pos[0]);
-		glm::vec3 light_color(50.0f, 50.0f, 50.0f);
+		glm::vec3 light_color(100.0f, 100.0f, 100.0f);
 		glUniform3fv(cubedata.unif_light_color, 1, &light_color[0]);
 		
 		update_cube_model(&state, &cube, rot_offset, rot_offset * 2, 0, 0, 0, 0.8f);
@@ -67,9 +71,18 @@ int main()
 		glUniformMatrix4fv(cubedata.unif_MV, 1, GL_FALSE, &cube.MV[0][0]);
 		glUniformMatrix3fv(cubedata.unif_NormMat, 1, GL_FALSE, &cube.NormMat[0][0]);
 		
-		for (Mesh m : meshes) {
-			bind_mesh(&cubedata, &m);
-			glDrawElements(GL_TRIANGLES, cubedata.vert_indexes.size(), GL_UNSIGNED_SHORT, nullptr);
+		for (size_t i = 0; i < meshes.size(); ++i) {
+			if (argc > 2) {
+				int mesh = std::stoi(argv[2]);
+				if (mesh == i) {
+					bind_mesh(&cubedata, &meshes[i]);
+					glDrawElements(GL_TRIANGLES, meshes[i].vert_indexes.size(), GL_UNSIGNED_SHORT, nullptr);
+				}
+			}
+			else {
+				bind_mesh(&cubedata, &meshes[i]);
+				glDrawElements(GL_TRIANGLES, meshes[i].vert_indexes.size(), GL_UNSIGNED_SHORT, nullptr);
+			}
 		}
 		
 		check();

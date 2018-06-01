@@ -25,8 +25,9 @@ void update_cube_model(const GLES_State* state, ObjectState* cube, int x, int y,
 
 void update_cube_view(const GLES_State* state, ObjectState* cube, int x, int y)
 {
-	const float distance = 20.0f;
-	const float scale = 5.0f;
+	//const float distance = 40.0f;
+	const float distance = 10.0f;
+	const float scale = 15.0f;
 	cube->angle_x = ((float) x - (float) state->screen_width / 2.0f)
 		/ (float) state->screen_width * scale;
 	cube->angle_y = ((float) y - (float) state->screen_height / 2.0f)
@@ -36,7 +37,7 @@ void update_cube_view(const GLES_State* state, ObjectState* cube, int x, int y)
 			distance * std::sin(cube->angle_x) * std::cos(cube->angle_y),
 			distance * std::sin(cube->angle_y)),
 		glm::vec3(0, 0, 0),
-		glm::vec3(0, 0, 1));
+		glm::vec3(0, 0, -1));
 }
 
 void compute_MVP_MV(ObjectState* cube)
