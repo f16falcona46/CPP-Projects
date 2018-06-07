@@ -57,20 +57,24 @@ int main(int argc, char* argv[])
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
-		glm::vec4 light_pos[NUM_LIGHTS];
-		light_pos[0] = glm::vec4(32.0f, 0.0f, 0.0f, 1.0f);
-		light_pos[1] = glm::vec4(32.0f, 32.0f, 0.0f, 1.0f);
-		for (int i = 2; i < NUM_LIGHTS; ++i) {
-			light_pos[i] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+		glm::vec3 light_pos[NUM_LIGHTS];
+		light_pos[0] = glm::vec3(32.0f, 0.0f, 0.0f);
+		light_pos[1] = glm::vec3(0.0f, 32.0f, 0.0f);
+		light_pos[2] = glm::vec3(0.0f, 0.0f, 32.0f);
+		light_pos[3] = glm::vec3(0.0f, 0.0f, -32.0f);
+		for (int i = 4; i < NUM_LIGHTS; ++i) {
+			light_pos[i] = glm::vec3(0.0f, 0.0f, 0.0f);
 		}
 		for (int i = 0; i < NUM_LIGHTS; ++i) {
-			light_pos[i] = light_pos[i] * cube.View;
+			light_pos[i] = glm::vec3(cube.View * glm::vec4(light_pos[i], 1.0f));
 		}
 		glUniform3fv(cubedata.unif_light_pos, NUM_LIGHTS, &light_pos[0][0]);
 		glm::vec3 light_color[NUM_LIGHTS];
 		light_color[0] = glm::vec3(100.0f, 0.0f, 0.0f);
 		light_color[1] = glm::vec3(0.0f, 100.0f, 0.0f);
-		for (int i = 2; i < NUM_LIGHTS; ++i) {
+		light_color[2] = glm::vec3(0.0f, 0.0f, 100.0f);
+		light_color[3] = glm::vec3(100.0f, 100.0f, 100.0f);
+		for (int i = 4; i < NUM_LIGHTS; ++i) {
 			light_color[i] = glm::vec3(0.0f, 0.0f, 0.0f);
 		}
 		glUniform3fv(cubedata.unif_light_color, NUM_LIGHTS, &light_color[0][0]);
