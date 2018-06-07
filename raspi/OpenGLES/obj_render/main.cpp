@@ -27,6 +27,16 @@ int main(int argc, char* argv[])
 		load_obj(&cubedata, &meshes, "White.obj");
 	}
 	std::cout << "Number of meshes: " << meshes.size() << '\n';
+	size_t target_mesh = 999;
+	if (argc > 2) {
+		int mesh = std::stoi(argv[2]);
+		if (mesh < 0) {
+			std::cerr << "Mesh must be non-negative.\n";
+		}
+		else {
+			target_mesh = static_cast<size_t>(mesh);
+		}
+	}
 
 	glClearColor(0.4f, 0.4f, 0.6f, 1.0f);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -87,8 +97,7 @@ int main(int argc, char* argv[])
 		
 		for (size_t i = 0; i < meshes.size(); ++i) {
 			if (argc > 2) {
-				int mesh = std::stoi(argv[2]);
-				if (mesh == i) {
+				if (target_mesh == i) {
 					bind_mesh(&cubedata, &meshes[i]);
 					glDrawElements(GL_TRIANGLES, meshes[i].vert_indexes.size(), GL_UNSIGNED_SHORT, nullptr);
 				}

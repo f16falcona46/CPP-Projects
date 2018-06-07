@@ -17,6 +17,8 @@
 // Math.h - STD math Library
 #include <math.h>
 
+#include <exception>
+
 // Print progress to console while loading (large models)
 #define OBJL_CONSOLE_OUTPUT
 
@@ -145,7 +147,8 @@ namespace objl
 	{
 		Material()
 		{
-			name;
+			//name is unused
+			//name;
 			Ns = 0.0f;
 			Ni = 0.0f;
 			d = 0.0f;
@@ -270,8 +273,8 @@ namespace objl
 			float b = (math::DotV3(math::CrossV3(u, w), n) / math::DotV3(n, n));
 			float a = 1 - y - b;
 
-			// Projected point
-			Vector3  p = (a * tri1) + (b * tri2) + (y * tri3);
+			// Projected point (unused)
+			//Vector3  p = (a * tri1) + (b * tri2) + (y * tri3);
 
 			if (a >= 0 && a <= 1
 				&& b >= 0 && b <= 1
@@ -615,7 +618,7 @@ namespace objl
 
 					if (temp.size() != 1)
 					{
-						for (int i = 0; i < temp.size() - 1; i++)
+						for (size_t i = 0; i < temp.size() - 1; i++)
 						{
 							pathtomat += temp[i] + "/";
 						}
@@ -652,13 +655,13 @@ namespace objl
 			file.close();
 
 			// Set Materials for each Mesh
-			for (int i = 0; i < MeshMatNames.size(); i++)
+			for (size_t i = 0; i < MeshMatNames.size(); i++)
 			{
 				std::string matname = MeshMatNames[i];
 
 				// Find corresponding material name in loaded materials
 				// when found copy material variables into mesh material
-				for (int j = 0; j < LoadedMaterials.size(); j++)
+				for (size_t j = 0; j < LoadedMaterials.size(); j++)
 				{
 					if (LoadedMaterials[j].name == matname)
 					{
@@ -716,17 +719,15 @@ namespace objl
 					// Only position
 					vtype = 1;
 				}
-
 				// Check for position & texture - v1/vt1
-				if (svert.size() == 2)
+				else if (svert.size() == 2)
 				{
 					// Position & Texture
 					vtype = 2;
 				}
-
 				// Check for Position, Texture and Normal - v1/vt1/vn1
 				// or if Position and Normal - v1//vn1
-				if (svert.size() == 3)
+				else if (svert.size() == 3)
 				{
 					if (svert[1] != "")
 					{
@@ -739,6 +740,10 @@ namespace objl
 						vtype = 3;
 					}
 				}
+				else {
+					throw std::runtime_error("Vertex has wrong number of elements.");
+				}
+
 
 				// Calculate and store the vertex
 				switch (vtype)
@@ -826,7 +831,7 @@ namespace objl
 			while (true)
 			{
 				// For every vertex
-				for (int i = 0; i < int(tVerts.size()); i++)
+				for (size_t i = 0; i < tVerts.size(); i++)
 				{
 					// pPrev = the previous vertex in the list
 					Vertex pPrev;
@@ -858,7 +863,7 @@ namespace objl
 					if (tVerts.size() == 3)
 					{
 						// Create a triangle from pCur, pPrev, pNext
-						for (int j = 0; j < int(tVerts.size()); j++)
+						for (size_t j = 0; j < tVerts.size(); j++)
 						{
 							if (iVerts[j].Position == pCur.Position)
 								oIndices.push_back(j);

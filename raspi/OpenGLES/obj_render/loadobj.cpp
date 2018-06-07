@@ -13,7 +13,7 @@ void load_obj(GLESData* data, std::vector<Mesh>* meshes, const char* filename)
 	objl::Loader Loader;
 	bool loadout = Loader.LoadFile(filename);
 	if (loadout) {
-		for (int i = 0; i < Loader.LoadedMeshes.size(); ++i) {
+		for (size_t i = 0; i < Loader.LoadedMeshes.size(); ++i) {
 			meshes->emplace_back();
 			load_mesh(data, &(*meshes)[i], Loader.LoadedMeshes[i]);
 		}
@@ -49,7 +49,7 @@ void bind_mesh(GLESData* data, const Mesh* mesh)
 void load_mesh(GLESData* data, Mesh* meshd, const objl::Mesh& mesh)
 {
 	meshd->vertices.clear();
-	for (int i = 0; i < mesh.Vertices.size(); ++i) {
+	for (size_t i = 0; i < mesh.Vertices.size(); ++i) {
 		meshd->vertices.emplace_back(mesh.Vertices[i].Position.X);
 		meshd->vertices.emplace_back(mesh.Vertices[i].Position.Y);
 		meshd->vertices.emplace_back(mesh.Vertices[i].Position.Z);
@@ -62,7 +62,7 @@ void load_mesh(GLESData* data, Mesh* meshd, const objl::Mesh& mesh)
 		meshd->vertices.emplace_back(0.0f);
 	}
 	meshd->vert_indexes.clear();
-	for (int i = 0; i < mesh.Indices.size(); ++i) {
+	for (size_t i = 0; i < mesh.Indices.size(); ++i) {
 		meshd->vert_indexes.emplace_back(mesh.Indices[i]);
 	}
 	meshd->kd_tex = create_texture(mesh.MeshMaterial.map_Kd.c_str());
