@@ -43,7 +43,7 @@ static const GLchar* vshader_source =
 	"		light += light_color[i] * diffuse;"
 	"	}"
 	"	gl_Position = MVP * vertex_pos;"
-	"	uv = vertex_texcoord;"
+	"	uv = vec2(0.0, 1.0) + vec2(1.0, -1.0) * vertex_texcoord;"
 	"}";
 
 static const GLchar* fshader_source =

@@ -80,9 +80,9 @@ int main(int argc, char* argv[])
 		}
 		glUniform3fv(cubedata.unif_light_pos, NUM_LIGHTS, &light_pos[0][0]);
 		glm::vec3 light_color[NUM_LIGHTS];
-		light_color[0] = glm::vec3(100.0f, 0.0f, 0.0f);
-		light_color[1] = glm::vec3(0.0f, 100.0f, 0.0f);
-		light_color[2] = glm::vec3(0.0f, 0.0f, 100.0f);
+		light_color[0] = glm::vec3(100.0f, 100.0f, 100.0f);
+		light_color[1] = glm::vec3(100.0f, 100.0f, 100.0f);
+		light_color[2] = glm::vec3(100.0f, 100.0f, 100.0f);
 		light_color[3] = glm::vec3(100.0f, 100.0f, 100.0f);
 		for (int i = 4; i < NUM_LIGHTS; ++i) {
 			light_color[i] = glm::vec3(0.0f, 0.0f, 0.0f);
