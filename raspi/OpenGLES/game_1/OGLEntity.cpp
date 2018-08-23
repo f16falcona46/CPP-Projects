@@ -39,12 +39,12 @@ void OGLEntity::draw_internal()
 				glVertexAttribPointer(this->data.attr_vertex_normal, 4, GL_FLOAT, GL_FALSE, 10 * sizeof(GLfloat), (const GLvoid*)(6 * sizeof(GLfloat)));
 			}
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.vert_idx_buf);
-			glDrawElements(GL_TRIANGLES, m.vert_indexes.size(), GL_UNSIGNED_SHORT, nullptr);
+			glDrawElements(GL_TRIANGLES, m.num_vert_indexes, GL_UNSIGNED_SHORT, nullptr);
 		}
 	}
 }
 
 void OGLEntity::tick_internal(float time)
 {
-	this->M = glm::translate(this->M_rotate, this->pos);
+	this->M = glm::translate(glm::mat4(1.0f), this->pos) * this->M_rotate;
 }

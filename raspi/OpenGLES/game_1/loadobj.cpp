@@ -49,23 +49,23 @@ void bind_mesh(GLESData* data, const Mesh* mesh)
 
 void load_mesh(GLESData* data, Mesh* meshd, const objl::Mesh& mesh)
 {
-	meshd->vertices.clear();
+	std::vector<GLfloat> vertices;
 	for (size_t i = 0; i < mesh.Vertices.size(); ++i) {
-		meshd->vertices.emplace_back(mesh.Vertices[i].Position.X);
-		meshd->vertices.emplace_back(mesh.Vertices[i].Position.Y);
-		meshd->vertices.emplace_back(mesh.Vertices[i].Position.Z);
-		meshd->vertices.emplace_back(1.0f);
-		meshd->vertices.emplace_back(mesh.Vertices[i].TextureCoordinate.X);
-		meshd->vertices.emplace_back(mesh.Vertices[i].TextureCoordinate.Y);
-		meshd->vertices.emplace_back(mesh.Vertices[i].Normal.X);
-		meshd->vertices.emplace_back(mesh.Vertices[i].Normal.Y);
-		meshd->vertices.emplace_back(mesh.Vertices[i].Normal.Z);
-		meshd->vertices.emplace_back(0.0f);
+		vertices.emplace_back(mesh.Vertices[i].Position.X);
+		vertices.emplace_back(mesh.Vertices[i].Position.Y);
+		vertices.emplace_back(mesh.Vertices[i].Position.Z);
+		vertices.emplace_back(1.0f);
+		vertices.emplace_back(mesh.Vertices[i].TextureCoordinate.X);
+		vertices.emplace_back(mesh.Vertices[i].TextureCoordinate.Y);
+		vertices.emplace_back(mesh.Vertices[i].Normal.X);
+		vertices.emplace_back(mesh.Vertices[i].Normal.Y);
+		vertices.emplace_back(mesh.Vertices[i].Normal.Z);
+		vertices.emplace_back(0.0f);
 	}
-	meshd->vert_indexes.clear();
-	for (size_t i = 0; i < mesh.Indices.size(); ++i) {
-		meshd->vert_indexes.emplace_back(mesh.Indices[i]);
-	}
+
+	meshd->num_vert_indexes = mesh.Indices.size();
+	std::vector<GLushort> vert_indexes(mesh.Indices.begin(), mesh.Indices.end());
+
 	meshd->kd_tex = create_texture(mesh.MeshMaterial.map_Kd.c_str());
 	check();
 	glActiveTexture(GL_TEXTURE0);
@@ -82,7 +82,7 @@ void load_mesh(GLESData* data, Mesh* meshd, const objl::Mesh& mesh)
 	check();
 	glBindBuffer(GL_ARRAY_BUFFER, meshd->vert_buf);
 	check();
-	glBufferData(GL_ARRAY_BUFFER, meshd->vertices.size() * sizeof(GLfloat), meshd->vertices.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_STATIC_DRAW);
 	check();
 	if (data->attr_vertex_pos >= 0) {
 		glEnableVertexAttribArray(data->attr_vertex_pos);
@@ -99,6 +99,6 @@ void load_mesh(GLESData* data, Mesh* meshd, const objl::Mesh& mesh)
 
 	glGenBuffers(1, &meshd->vert_idx_buf);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, meshd->vert_idx_buf);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLushort) * meshd->vert_indexes.size(), meshd->vert_indexes.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLushort) * vert_indexes.size(), vert_indexes.data(), GL_STATIC_DRAW);
 	check();
 }
