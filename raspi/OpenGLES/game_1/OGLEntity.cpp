@@ -15,6 +15,8 @@ OGLEntity::OGLEntity(const std::string& obj_filename, const GLESData& GLdata) : 
 void OGLEntity::draw_internal()
 {
 	if (this->loaded) {
+		static Mesh last_mesh;
+		
 		glm::mat4 MV = this->V * this->M;
 		glm::mat4 MVP = this->P * MV;
 		this->NormMat = glm::inverseTranspose(glm::mat3(MV));
@@ -22,23 +24,26 @@ void OGLEntity::draw_internal()
 		glUniformMatrix4fv(this->data.unif_MV, 1, GL_FALSE, &MV[0][0]);
 		glUniformMatrix3fv(this->data.unif_NormMat, 1, GL_FALSE, &this->NormMat[0][0]);
 		for (Mesh m : this->meshes) {
-			glUseProgram(this->data.program);
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, m.kd_tex);
-			glBindBuffer(GL_ARRAY_BUFFER, m.vert_buf);
-			if (this->data.attr_vertex_pos >= 0) {
-				glEnableVertexAttribArray(this->data.attr_vertex_pos);
-				glVertexAttribPointer(this->data.attr_vertex_pos, 4, GL_FLOAT, GL_FALSE, 10 * sizeof(GLfloat), (const GLvoid*)0);
+			if (m != last_mesh) {
+				last_mesh = m;
+				glUseProgram(this->data.program);
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, m.kd_tex);
+				glBindBuffer(GL_ARRAY_BUFFER, m.vert_buf);
+				if (this->data.attr_vertex_pos >= 0) {
+					glEnableVertexAttribArray(this->data.attr_vertex_pos);
+					glVertexAttribPointer(this->data.attr_vertex_pos, 4, GL_FLOAT, GL_FALSE, 10 * sizeof(GLfloat), (const GLvoid*)0);
+				}
+				if (this->data.attr_vertex_texcoord >= 0) {
+					glEnableVertexAttribArray(this->data.attr_vertex_texcoord);
+					glVertexAttribPointer(this->data.attr_vertex_texcoord, 2, GL_FLOAT, GL_FALSE, 10 * sizeof(GLfloat), (const GLvoid*)(4 * sizeof(GLfloat)));
+				}
+				if (this->data.attr_vertex_normal >= 0) {
+					glEnableVertexAttribArray(this->data.attr_vertex_normal);
+					glVertexAttribPointer(this->data.attr_vertex_normal, 4, GL_FLOAT, GL_FALSE, 10 * sizeof(GLfloat), (const GLvoid*)(6 * sizeof(GLfloat)));
+				}
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.vert_idx_buf);
 			}
-			if (this->data.attr_vertex_texcoord >= 0) {
-				glEnableVertexAttribArray(this->data.attr_vertex_texcoord);
-				glVertexAttribPointer(this->data.attr_vertex_texcoord, 2, GL_FLOAT, GL_FALSE, 10 * sizeof(GLfloat), (const GLvoid*)(4 * sizeof(GLfloat)));
-			}
-			if (this->data.attr_vertex_normal >= 0) {
-				glEnableVertexAttribArray(this->data.attr_vertex_normal);
-				glVertexAttribPointer(this->data.attr_vertex_normal, 4, GL_FLOAT, GL_FALSE, 10 * sizeof(GLfloat), (const GLvoid*)(6 * sizeof(GLfloat)));
-			}
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.vert_idx_buf);
 			glDrawElements(GL_TRIANGLES, m.num_vert_indexes, GL_UNSIGNED_SHORT, nullptr);
 		}
 	}
