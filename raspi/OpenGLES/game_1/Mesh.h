@@ -19,4 +19,9 @@ bool operator==(const Mesh& m1, const Mesh& m2)
 		(m1.vert_idx_buf == m2.vert_idx_buf);
 }
 
+bool operator!=(const Mesh& m1, const Mesh& m2)
+{
+	return !(m1 == m2);
+}
+
 #endif //MESH_H
