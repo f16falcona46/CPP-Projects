@@ -11,7 +11,7 @@ struct Mesh {
 	GLuint vert_idx_buf;
 };
 
-bool operator==(const Mesh& m1, const Mesh& m2)
+inline bool operator==(const Mesh& m1, const Mesh& m2)
 {
 	return (m1.num_vert_indexes == m2.num_vert_indexes) &&
 		(m1.kd_tex == m2.kd_tex) &&
@@ -19,7 +19,7 @@ bool operator==(const Mesh& m1, const Mesh& m2)
 		(m1.vert_idx_buf == m2.vert_idx_buf);
 }
 
-bool operator!=(const Mesh& m1, const Mesh& m2)
+inline bool operator!=(const Mesh& m1, const Mesh& m2)
 {
 	return !(m1 == m2);
 }
