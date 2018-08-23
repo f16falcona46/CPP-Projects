@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
+#include "Mesh.h"
 
 struct ObjectState {
 	float angle_x;
@@ -16,14 +17,6 @@ struct ObjectState {
 	glm::mat4 MV;
 	glm::mat3 NormMat;
 	glm::vec3 light_position;
-};
-
-struct Mesh {
-	std::vector<GLfloat> vertices;
-	std::vector<GLushort> vert_indexes;
-	GLuint kd_tex;
-	GLuint vert_buf;
-	GLuint vert_idx_buf;
 };
 
 struct GLESData {

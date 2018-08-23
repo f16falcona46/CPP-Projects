@@ -59,18 +59,18 @@ int main(int argc, char* argv[])
 			frames = 0;
 		}
 		
-		rot_offset = 0;
+		//rot_offset = 0;
 		int mouse_x, mouse_y;
 		get_mouse(&state, &mouse_x, &mouse_y);
 		
-		update_cube_view(&state, &cube, mouse_x, mouse_y);
+		update_cube_view(&state, &cube, 0, 0);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		glm::vec3 light_pos[NUM_LIGHTS];
-		light_pos[0] = glm::vec3(32.0f, 0.0f, 0.0f);
+		light_pos[0] = glm::vec3(8.0f, 2.0f, 0.0f);
 		light_pos[1] = glm::vec3(0.0f, 32.0f, 0.0f);
-		light_pos[2] = glm::vec3(0.0f, 0.0f, 32.0f);
+		light_pos[2] = glm::vec3(8.0f, 0.0f, -2.0f);
 		light_pos[3] = glm::vec3(0.0f, 0.0f, -32.0f);
 		for (int i = 4; i < NUM_LIGHTS; ++i) {
 			light_pos[i] = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -80,16 +80,18 @@ int main(int argc, char* argv[])
 		}
 		glUniform3fv(cubedata.unif_light_pos, NUM_LIGHTS, &light_pos[0][0]);
 		glm::vec3 light_color[NUM_LIGHTS];
-		light_color[0] = glm::vec3(100.0f, 100.0f, 100.0f);
-		light_color[1] = glm::vec3(100.0f, 100.0f, 100.0f);
-		light_color[2] = glm::vec3(100.0f, 100.0f, 100.0f);
-		light_color[3] = glm::vec3(100.0f, 100.0f, 100.0f);
+		light_color[0] = glm::vec3(10.0f, 10.0f, 10.0f);
+		//light_color[1] = glm::vec3(100.0f, 100.0f, 100.0f);
+		light_color[2] = glm::vec3(10.0f, 10.0f, 10.0f);
+		//light_color[3] = glm::vec3(100.0f, 100.0f, 100.0f);
 		for (int i = 4; i < NUM_LIGHTS; ++i) {
 			light_color[i] = glm::vec3(0.0f, 0.0f, 0.0f);
 		}
 		glUniform3fv(cubedata.unif_light_color, NUM_LIGHTS, &light_color[0][0]);
 		
-		update_cube_model(&state, &cube, rot_offset, rot_offset * 2, 0, 0, 0, 0.8f);
+		float mouse_x_prop = ((float)mouse_x - state.screen_width / 2) / (float) state.screen_height;
+		float mouse_y_prop = ((float)mouse_y - state.screen_height / 2) / (float) state.screen_height;
+		update_cube_model(&state, &cube, rot_offset, rot_offset, mouse_x_prop, mouse_y_prop, 0, 1.0f);
 		compute_MVP_MV(&cube);
 		glUniformMatrix4fv(cubedata.unif_MVP, 1, GL_FALSE, &cube.MVP[0][0]);
 		glUniformMatrix4fv(cubedata.unif_MV, 1, GL_FALSE, &cube.MV[0][0]);

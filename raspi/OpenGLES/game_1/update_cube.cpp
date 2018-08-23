@@ -17,10 +17,10 @@ void update_cube_model(const GLES_State* state, ObjectState* cube, int x, int y,
 		/ (float) state->screen_width * scale;
 	cube->angle_y = ((float) y - (float) state->screen_height / 2.0f)
 		/ (float) state->screen_width * scale;
-	cube->Model = glm::translate(glm::vec3(x_shift, y_shift, z_shift));
+	cube->Model = glm::scale(glm::vec3(size, size, size));
 	cube->Model = glm::rotate(cube->Model, cube->angle_x, glm::vec3(0.0f, 0.0f, 1.0f));
 	cube->Model = glm::rotate(cube->Model, cube->angle_y, glm::vec3(1.0f, 0.0f, 0.0f));
-	cube->Model = glm::scale(cube->Model, glm::vec3(size, size, size));
+	cube->Model = glm::translate(cube->Model, glm::vec3(x_shift, y_shift, z_shift));
 }
 
 void update_cube_view(const GLES_State* state, ObjectState* cube, int x, int y)
