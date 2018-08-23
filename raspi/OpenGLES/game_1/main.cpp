@@ -31,11 +31,12 @@ int main(int argc, char* argv[])
 	std::vector<std::unique_ptr<OGLEntity> > entities;
 	if (argc > 1) {
 		RotatingEntity src(argv[1], gldata);
-		for (int i = 0; i < 40; ++i) {
+		for (int i = 0; i < 100; ++i) {
 			std::unique_ptr<RotatingEntity> e(new RotatingEntity(src));
 			e->x_rate = (std::rand() / (double) RAND_MAX - 0.5) * 2.0;
 			e->y_rate = (std::rand() / (double) RAND_MAX - 0.5) * 2.0;
-			e->scale = 0.8f;
+			e->z_rate = (std::rand() / (double) RAND_MAX - 0.5) * 2.0;
+			e->scale = 0.6f;
 			e->pos = glm::vec3((std::rand() / (double) RAND_MAX - 0.5) * 12.0, (std::rand() / (double) RAND_MAX - 0.5f) * 8.0, (std::rand() / (double) RAND_MAX - 0.5f) * 8.0);
 			e->vel = glm::vec3((std::rand() / (double) RAND_MAX - 0.5) * 12.0, (std::rand() / (double) RAND_MAX - 0.5f) * 8.0, (std::rand() / (double) RAND_MAX - 0.5f) * 12.0);
 			entities.emplace_back(std::move(e));
