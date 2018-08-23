@@ -3,41 +3,30 @@
 #include "state.h"
 #include "shaders.h"
 #include "update_cube.h"
+#include "Entity.h"
+#include "OGLEntity.h"
 
 #include <iostream>
 #include <chrono>
 #include <signal.h>
 #include <time.h>
 #include <vector>
+#include <memory>
 
 int main(int argc, char* argv[])
 {
 	GLES_State state;
 	init_ogl(&state);
-	ObjectState cube;
-	
+
 	GLESData cubedata;
 	compile_shaders(&state, &cubedata);
+	ObjectState cube;
 	
-	std::vector<Mesh> meshes;
+	std::unique_ptr<OGLEntity> e(new OGLEntity());
 	if (argc > 1) {
-		load_obj(&cubedata, &meshes, argv[1]);
+		e.reset(new OGLEntity(argv[1], cubedata));
 	}
-	else {
-		load_obj(&cubedata, &meshes, "White.obj");
-	}
-	std::cout << "Number of meshes: " << meshes.size() << '\n';
-	size_t target_mesh = 999;
-	if (argc > 2) {
-		int mesh = std::stoi(argv[2]);
-		if (mesh < 0) {
-			std::cerr << "Mesh must be non-negative.\n";
-		}
-		else {
-			target_mesh = static_cast<size_t>(mesh);
-		}
-	}
-
+	
 	glClearColor(0.4f, 0.4f, 0.6f, 1.0f);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glUseProgram(cubedata.program);
@@ -47,6 +36,7 @@ int main(int argc, char* argv[])
 	int rot_offset = 0;
 	int frames = 0;
 	auto last_fps_update = std::chrono::system_clock::now();
+	auto last_tick = std::chrono::system_clock::now();
 	while (1) {
 		rot_offset += 2;
 		++frames;
@@ -59,7 +49,6 @@ int main(int argc, char* argv[])
 			frames = 0;
 		}
 		
-		//rot_offset = 0;
 		int mouse_x, mouse_y;
 		get_mouse(&state, &mouse_x, &mouse_y);
 		
@@ -91,25 +80,20 @@ int main(int argc, char* argv[])
 		
 		float mouse_x_prop = ((float)mouse_x - state.screen_width / 2) / (float) state.screen_height;
 		float mouse_y_prop = ((float)mouse_y - state.screen_height / 2) / (float) state.screen_height;
-		update_cube_model(&state, &cube, rot_offset, rot_offset, mouse_x_prop, mouse_y_prop, 0, 1.0f);
-		compute_MVP_MV(&cube);
-		glUniformMatrix4fv(cubedata.unif_MVP, 1, GL_FALSE, &cube.MVP[0][0]);
-		glUniformMatrix4fv(cubedata.unif_MV, 1, GL_FALSE, &cube.MV[0][0]);
-		glUniformMatrix3fv(cubedata.unif_NormMat, 1, GL_FALSE, &cube.NormMat[0][0]);
+		update_cube_model(&state, &cube, rot_offset, rot_offset * 2, 1.0f);
 		
-		for (size_t i = 0; i < meshes.size(); ++i) {
-			if (argc > 2) {
-				if (target_mesh == i) {
-					bind_mesh(&cubedata, &meshes[i]);
-					glDrawElements(GL_TRIANGLES, meshes[i].vert_indexes.size(), GL_UNSIGNED_SHORT, nullptr);
-				}
-			}
-			else {
-				bind_mesh(&cubedata, &meshes[i]);
-				glDrawElements(GL_TRIANGLES, meshes[i].vert_indexes.size(), GL_UNSIGNED_SHORT, nullptr);
-			}
-		}
-		
+		e->M_rotate = cube.Model;
+		e->V = cube.View;
+		e->P = cube.Projection;
+		e->NormMat = cube.NormMat;
+		e->vel = glm::vec3(mouse_x_prop, mouse_y_prop, 0.0f);
+		auto cur_time = std::chrono::system_clock::now();
+		auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(cur_time - last_tick);
+		float tick_time = elapsed.count() / 1000000.0f;
+		last_tick = cur_time;
+		e->Tick(tick_time);
+		e->Draw();
+
 		check();
 		eglSwapBuffers(state.display, state.surface);
 	}

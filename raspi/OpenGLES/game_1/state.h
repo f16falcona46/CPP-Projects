@@ -6,6 +6,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
 #include "Mesh.h"
+#include "GLESData.h"
 
 struct ObjectState {
 	float angle_x;
@@ -17,21 +18,6 @@ struct ObjectState {
 	glm::mat4 MV;
 	glm::mat3 NormMat;
 	glm::vec3 light_position;
-};
-
-struct GLESData {
-	GLuint vshader;
-	GLuint fshader;
-	GLuint program;
-	GLint attr_vertex_pos;
-	GLint attr_vertex_texcoord;
-	GLint attr_vertex_normal;
-	GLuint unif_MVP;
-	GLuint unif_MV;
-	GLuint unif_NormMat;
-	GLuint unif_light_pos;
-	GLuint unif_tex;
-	GLuint unif_light_color;
 };
 
 #endif //STATE_H

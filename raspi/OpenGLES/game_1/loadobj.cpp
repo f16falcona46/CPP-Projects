@@ -7,20 +7,21 @@
 
 void load_mesh(GLESData* data, Mesh* meshd, const objl::Mesh& mesh);
 
-void load_obj(GLESData* data, std::vector<Mesh>* meshes, const char* filename)
+bool load_obj(GLESData* data, std::vector<Mesh>* meshes, const char* filename)
 {
 	meshes->clear();
-	objl::Loader Loader;
-	bool loadout = Loader.LoadFile(filename);
-	if (loadout) {
-		for (size_t i = 0; i < Loader.LoadedMeshes.size(); ++i) {
+	objl::Loader loader;
+	bool loaded = loader.LoadFile(filename);
+	if (loaded) {
+		for (size_t i = 0; i < loader.LoadedMeshes.size(); ++i) {
 			meshes->emplace_back();
-			load_mesh(data, &(*meshes)[i], Loader.LoadedMeshes[i]);
+			load_mesh(data, &(*meshes)[i], loader.LoadedMeshes[i]);
 		}
 	}
 	else {
 		std::cerr << "Nothing was loaded.\n";
 	}
+	return loaded;
 }
 
 void bind_mesh(GLESData* data, const Mesh* mesh)

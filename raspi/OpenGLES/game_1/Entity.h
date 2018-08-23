@@ -5,13 +5,13 @@
 
 class Entity {
 public:
-	Entity() = delete;
 	virtual ~Entity() {}
 	void Draw();
 	void Tick(float time);
 	glm::vec3 pos;
 	glm::vec3 vel;
 protected:
+	Entity() {}
 	virtual void draw_internal() {}
 	virtual void tick_internal(float time) {}
 private:
