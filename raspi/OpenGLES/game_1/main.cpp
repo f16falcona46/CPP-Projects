@@ -85,7 +85,6 @@ int main(int argc, char* argv[])
 		e->M_rotate = cube.Model;
 		e->V = cube.View;
 		e->P = cube.Projection;
-		e->NormMat = cube.NormMat;
 		e->vel = glm::vec3(mouse_x_prop, mouse_y_prop, 0.0f);
 		auto cur_time = std::chrono::system_clock::now();
 		auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(cur_time - last_tick);
