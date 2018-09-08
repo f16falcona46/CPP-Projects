@@ -14,9 +14,21 @@
 #include <vector>
 #include <memory>
 #include <utility>
+#include <algorithm>
 
 #include <cstdlib>
 #include <ctime>
+
+void MakeItRain(RotatingEntity* e)
+{
+	e->x_rate = (std::rand() / (double) RAND_MAX - 0.5) * 8.0;
+	e->y_rate = (std::rand() / (double) RAND_MAX - 0.5) * 32.0;
+	e->z_rate = (std::rand() / (double) RAND_MAX - 0.5) * 8.0;
+	e->scale = 0.06f;
+	//e->pos = glm::vec3((std::rand() / (double) RAND_MAX - 0.5) * 12.0, (std::rand() / (double) RAND_MAX - 0.5f) * 8.0, (std::rand() / (double) RAND_MAX - 0.5f) * 8.0);
+	e->pos = glm::vec3(0.0f, 0.0f, 0.0f);
+	e->vel = glm::vec3((std::rand() / (double) RAND_MAX - 0.2) * 12.0, (std::rand() / (double) RAND_MAX) * 16.0, (std::rand() / (double) RAND_MAX - 0.2f) * 12.0);
+}
 
 int main(int argc, char* argv[])
 {
@@ -31,14 +43,9 @@ int main(int argc, char* argv[])
 	std::vector<std::unique_ptr<OGLEntity> > entities;
 	if (argc > 1) {
 		RotatingEntity src(argv[1], gldata);
-		for (int i = 0; i < 100; ++i) {
+		for (int i = 0; i < 200; ++i) {
 			std::unique_ptr<RotatingEntity> e(new RotatingEntity(src));
-			e->x_rate = (std::rand() / (double) RAND_MAX - 0.5) * 2.0;
-			e->y_rate = (std::rand() / (double) RAND_MAX - 0.5) * 2.0;
-			e->z_rate = (std::rand() / (double) RAND_MAX - 0.5) * 2.0;
-			e->scale = 0.6f;
-			e->pos = glm::vec3((std::rand() / (double) RAND_MAX - 0.5) * 12.0, (std::rand() / (double) RAND_MAX - 0.5f) * 8.0, (std::rand() / (double) RAND_MAX - 0.5f) * 8.0);
-			e->vel = glm::vec3((std::rand() / (double) RAND_MAX - 0.5) * 12.0, (std::rand() / (double) RAND_MAX - 0.5f) * 8.0, (std::rand() / (double) RAND_MAX - 0.5f) * 12.0);
+			MakeItRain(e.get());
 			entities.emplace_back(std::move(e));
 		}
 	}
@@ -74,7 +81,7 @@ int main(int argc, char* argv[])
 		glm::vec3 light_pos[NUM_LIGHTS];
 		light_pos[0] = glm::vec3(8.0f, 2.0f, 0.0f);
 		light_pos[1] = glm::vec3(0.0f, 32.0f, 0.0f);
-		light_pos[2] = glm::vec3(8.0f, 0.0f, -2.0f);
+		light_pos[2] = glm::vec3(80.0f, 0.0f, 60.0f);
 		light_pos[3] = glm::vec3(0.0f, 0.0f, -32.0f);
 		for (int i = 4; i < NUM_LIGHTS; ++i) {
 			light_pos[i] = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -86,7 +93,7 @@ int main(int argc, char* argv[])
 		glm::vec3 light_color[NUM_LIGHTS];
 		light_color[0] = glm::vec3(10.0f, 10.0f, 10.0f);
 		//light_color[1] = glm::vec3(100.0f, 100.0f, 100.0f);
-		light_color[2] = glm::vec3(10.0f, 10.0f, 10.0f);
+		light_color[2] = glm::vec3(1000.0f, 1000.0f, 1000.0f);
 		//light_color[3] = glm::vec3(100.0f, 100.0f, 100.0f);
 		for (int i = 4; i < NUM_LIGHTS; ++i) {
 			light_color[i] = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -110,8 +117,8 @@ int main(int argc, char* argv[])
 			if (e->pos.x > 6.0f || e->pos.x < -6.0f) {
 				e->vel.x = -e->vel.x;
 			}
-			if (e->pos.y > 4.0f || e->pos.y < -4.0f) {
-				e->vel.y = -e->vel.y;
+			if (e->pos.y < -4.0f) {
+				MakeItRain(dynamic_cast<RotatingEntity*>(e.get()));
 			}
 			if (e->pos.z > 4.0f || e->pos.z < -4.0f) {
 				e->vel.z = -e->vel.z;
@@ -121,6 +128,7 @@ int main(int argc, char* argv[])
 
 			//std::cout << e->pos.x << ' ' << e->pos.y << '\n';
 		}
+		entities.erase(std::remove_if(entities.begin(), entities.end(), [](const auto& p){return p.get() == nullptr;}), entities.end());
 
 		check();
 		eglSwapBuffers(state.display, state.surface);

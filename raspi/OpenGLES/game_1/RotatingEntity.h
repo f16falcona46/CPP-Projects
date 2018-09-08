@@ -14,9 +14,10 @@ public:
 protected:
 	float x_angle, y_angle, z_angle;
 	virtual void tick_internal(float time) override {
+		this->vel += time * glm::vec3(0.0f, -4.9f, 0.0f);
 		this->x_angle += std::fmod(time * this->x_rate, 2 * M_PI);
-		this->y_angle += std::fmod(time * this->x_rate, 2 * M_PI);
-		this->z_angle += std::fmod(time * this->x_rate, 2 * M_PI);
+		this->y_angle += std::fmod(time * this->y_rate, 2 * M_PI);
+		this->z_angle += std::fmod(time * this->z_rate, 2 * M_PI);
 		this->M_rotate = glm::scale(glm::vec3(this->scale, this->scale, this->scale));
 		this->M_rotate = glm::rotate(this->M_rotate, this->x_angle, glm::vec3(0.0f, 0.0f, 1.0f));
 		this->M_rotate = glm::rotate(this->M_rotate, this->y_angle, glm::vec3(1.0f, 0.0f, 0.0f));
