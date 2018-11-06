@@ -121,7 +121,7 @@ void OCLConvolve::Execute()
 
 	int num_workitems = m_image_width * m_image_height;
 	cl::Event e;
-	m_cqueue.enqueueNDRangeKernel(m_kernel, cl::NDRange(0, 0), cl::NDRange(RoundToMultiple(m_image_width - m_convkern->GetWidth() + 1, m_lwg_size / 16), RoundToMultiple(m_image_height - m_convkern->GetHeight() + 1, 16)), cl::NDRange(m_lwg_size / 16, 16), nullptr, &e);
+	m_cqueue.enqueueNDRangeKernel(m_kernel, cl::NDRange(0, 0), cl::NDRange(RoundToMultiple(m_image_width - m_convkern->GetWidth() + 1, m_lwg_size / 8), RoundToMultiple(m_image_height - m_convkern->GetHeight() + 1, 8)), cl::NDRange(m_lwg_size / 8, 8), nullptr, &e);
 	e.wait();
 
 	m_cqueue.finish();

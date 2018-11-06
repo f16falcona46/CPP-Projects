@@ -2,7 +2,6 @@
 #include <memory>
 #include <vector>
 #include <png++/png.hpp>
-#include <Windows.h>
 
 #include "OCLConvolve.h"
 #include "BlurKernel.h"
