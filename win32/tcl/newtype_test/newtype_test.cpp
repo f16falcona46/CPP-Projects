@@ -1,4 +1,9 @@
+#ifdef WIN32
 #include <tcl.h>
+#else
+#include <tcl/tcl.h>
+#endif
+
 #include <string>
 #include <algorithm>
 #include <iostream>
@@ -22,6 +27,22 @@ int MakeString_Cmd(ClientData cdata, Tcl_Interp* interp, int objc, Tcl_Obj* cons
 	}
 	std::string& str = *(static_cast<std::string*>(result->internalRep.otherValuePtr));
 	str = "test";
+	Tcl_InvalidateStringRep(result);
+	Tcl_SetObjResult(interp, result);
+	return TCL_OK;
+}
+
+int AppendA_Cmd(ClientData cdata, Tcl_Interp* interp, int objc, Tcl_Obj* const objv[])
+{
+	if (objc < 2) {
+		return TCL_ERROR;
+	}
+	Tcl_Obj* result = Tcl_DuplicateObj(objv[1]);
+	if (Tcl_ConvertToType(interp, result, &SketchyString) != TCL_OK) {
+		return TCL_ERROR;
+	}
+	std::string& str = *(static_cast<std::string*>(result->internalRep.otherValuePtr));
+	str += "A";
 	Tcl_InvalidateStringRep(result);
 	Tcl_SetObjResult(interp, result);
 	return TCL_OK;
@@ -51,7 +72,11 @@ void SketchyString_UpdateStringProc(Tcl_Obj* obj)
 
 void SketchyString_DupInternalRepProc(Tcl_Obj* src_ptr, Tcl_Obj* dest_ptr)
 {
-	std::cout << src_ptr->internalRep.otherValuePtr << ' ' << dest_ptr->internalRep.otherValuePtr << '\n';
+	dest_ptr->internalRep.otherValuePtr = new std::string();
+
+	std::string& src_str = *(static_cast<std::string*>(src_ptr->internalRep.otherValuePtr));
+	std::string& dest_str = *(static_cast<std::string*>(dest_ptr->internalRep.otherValuePtr));
+	dest_str = src_str;
 }
 
 void SketchyString_FreeInternalRepProc(Tcl_Obj* obj)
@@ -78,5 +103,6 @@ int DLLEXPORT Newtype_Init(Tcl_Interp* interp)
 	Tcl_RegisterObjType(&SketchyString);
 
 	Tcl_CreateObjCommand(interp, "MakeString", MakeString_Cmd, NULL, NULL);
+	Tcl_CreateObjCommand(interp, "AppendA", AppendA_Cmd, NULL, NULL);
 	return TCL_OK;
 }
